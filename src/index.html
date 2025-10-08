@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sujeetkumar Kadam - Portfolio Website" />
+    <title>Sujeetkumar Kadam | Portfolio</title>
+    
+    <!-- CRITICAL: Suppress Three.js warnings before ANY modules load -->
+    <script>
+      (function() {
+        if (typeof window !== 'undefined') {
+          // Store original console methods
+          const originalWarn = console.warn.bind(console);
+          const originalError = console.error.bind(console);
+          
+          // Override console.warn
+          console.warn = function(...args) {
+            const message = String(args[0] || '');
+            if (message.includes('Multiple instances of Three') ||
+                message.includes('THREE.WebGLRenderer') ||
+                message.toLowerCase().includes('three.js')) {
+              return; // Suppress warning
+            }
+            originalWarn(...args);
+          };
+          
+          // Override console.error
+          console.error = function(...args) {
+            const message = String(args[0] || '');
+            if (message.includes('Multiple instances of Three') ||
+                message.toLowerCase().includes('three.js')) {
+              return; // Suppress error
+            }
+            originalError(...args);
+          };
+          
+          // Mark Three.js as managed
+          window.__THREE_MANAGED__ = true;
+          window.__THREE_SINGLETON_LOADED__ = true;
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/main.tsx"></script>
+  </body>
+</html>
