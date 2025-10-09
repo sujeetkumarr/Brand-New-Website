@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
-import { Moon, Sun, Download, Music, VolumeX } from 'lucide-react';
+import { Download } from 'lucide-react';
+import { AudioControls } from './AudioControls'; // NEW IMPORT
 
 interface HeaderProps {
   isDark: boolean;
@@ -105,36 +106,13 @@ export function Header({ isDark, onThemeToggle, isAudioPlaying, onAudioToggle, o
           </div>
 
           <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onAudioToggle}
-                className="p-2"
-                aria-label="Toggle background music"
-                title={isAudioPlaying ? "Pause music" : "Play music"}
-              >
-                {isAudioPlaying ? (
-                  <Music className="h-4 w-4 text-accent" />
-                ) : (
-                  <VolumeX className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onThemeToggle}
-              className="p-2"
-              aria-label="Toggle theme"
-            >
-              {isDark ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </Button>
+            {/* NEW: Audio Controls component replaces music and theme buttons */}
+            <AudioControls
+              isAudioPlaying={isAudioPlaying}
+              onAudioToggle={onAudioToggle}
+              onThemeToggle={onThemeToggle}
+              isDark={isDark}
+            />
 
             <Button
               variant="outline"
