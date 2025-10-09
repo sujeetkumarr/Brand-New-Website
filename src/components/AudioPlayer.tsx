@@ -5,9 +5,13 @@ interface AudioPlayerProps {
   onPlayStateChange?: (isPlaying: boolean) => void;
   hasUserInteracted: boolean;
   onTrackChange?: () => void;
+  onTitleChange?: (title: string) => void;
+  triggerNextTrack?: number;
+  volume: number;
 }
 
-// CRITICAL FIX: URLs cleaned to use the standard, stable raw.githubusercontent.com/user/repo/main/path format.
+// CRITICAL FIX: URLs use the stable raw.githubusercontent.com format.
+// The folder name in the repo is confirmed to be "music~".
 const AUDIO_TRACKS = [
   {
     url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/aaye-na-balam.mp3',
@@ -49,11 +53,17 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, onTrackChange }: AudioPlayerProps) {
+export function AudioPlayer({ 
+  isPlaying, 
+  onPlayStateChange, 
+  hasUserInteracted, 
+  onTrackChange,
+  onTitleChange,
+  triggerNextTrack,
+  volume 
+}: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  // Shuffled once on load, tracks list remains constant
   const [shuffledTracks] = useState(() => shuffleArray(AUDIO_TRACKS));
-  // currentTrackIndex determines which track is currently loaded/playing
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0); 
   
   const [isLoaded, setIsLoaded] = useState(false);
@@ -65,14 +75,12 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
   // Initialize audio element
   useEffect(() => {
     const audio = new Audio();
-    audio.volume = 0.25; // 25% volume - subtle background music
+    audio.volume = 0.25; // Initial volume
     audio.preload = 'metadata';
     
-    // Start with the first track from the shuffled list
     audio.src = shuffledTracks[0].url;
     audioRef.current = audio;
 
-    // Event listeners
     const handleCanPlay = () => {
       setIsLoaded(true);
       console.log('🎵 Audio ready:', shuffledTracks[currentTrackIndex].title);
@@ -93,16 +101,13 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
 
     const handleEnded = () => {
       console.log('🔄 Track ended, playing next...');
-      // Move to next track in shuffled order (this triggers the track-change useEffect)
       const nextIndex = (currentTrackIndex + 1) % shuffledTracks.length;
       setCurrentTrackIndex(nextIndex);
       onTrackChange?.();
     };
 
     const handleError = (e: Event) => {
-      // FIX: Improved error context for debugging bad URLs
-      console.error('❌ Audio error: Failed to load file. URL may be incorrect or inaccessible.', e); 
-      // Try next track on error to avoid getting stuck
+      console.error('❌ Audio error: Failed to load file from source. Check URL.', e); 
       const nextIndex = (currentTrackIndex + 1) % shuffledTracks.length;
       setCurrentTrackIndex(nextIndex);
     };
@@ -120,27 +125,24 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
       
-      // Cleanup
       if (playPromiseRef.current) {
         playPromiseRef.current.catch(() => {});
       }
       audio.pause();
       audio.src = '';
     };
-  }, []); // Only run once on mount
+  }, []);
 
-  // useEffect to handle track change (Called when currentTrackIndex state changes)
+  // Update track when index changes
   useEffect(() => {
     if (!audioRef.current) return;
     
     const audio = audioRef.current;
-    // We only auto-play if we were playing before and user has interacted
     const shouldAutoPlay = isPlaying && hasUserInteracted && wasPlayingRef.current;
     
     isChangingTrackRef.current = true;
     setIsLoaded(false);
     
-    // Logic to load and potentially play the new track source
     const loadAndPlayTrack = () => {
       audio.pause();
       console.log('Loading new track from URL:', shuffledTracks[currentTrackIndex].url); 
@@ -148,7 +150,6 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
       audio.load();
       
       if (shouldAutoPlay) {
-        // Wait for the new track to be ready before playing
         audio.addEventListener('canplay', function playOnReady() {
           audio.removeEventListener('canplay', playOnReady);
           const promise = audio.play();
@@ -164,7 +165,6 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
       }
     };
 
-    // Ensure any pending promises are resolved before changing the source
     if (playPromiseRef.current) {
       playPromiseRef.current.then(loadAndPlayTrack).catch(loadAndPlayTrack);
     } else {
@@ -172,20 +172,17 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
     }
   }, [currentTrackIndex, shuffledTracks, isPlaying, hasUserInteracted]);
 
-  // Handle play/pause based on user preference and interaction (The random switch logic)
+  // Handle play/pause and random track switch
   useEffect(() => {
     if (!audioRef.current || !isLoaded || isChangingTrackRef.current) return;
 
     const audio = audioRef.current;
     const wasPlaying = wasPlayingRef.current;
 
-    // Only attempt to play if user has interacted with the page
     if (isPlaying && hasUserInteracted) {
-      // FIX: Implement Random Track Switch on Pause -> Play transition
       if (!wasPlaying && attemptedPlayRef.current) {
         const randomIndex = Math.floor(Math.random() * shuffledTracks.length);
         
-        // Ensure we don't pick the exact same index if we can avoid it
         if (shuffledTracks.length > 1 && randomIndex === currentTrackIndex) {
             const newIndex = (randomIndex + 1) % shuffledTracks.length;
             setCurrentTrackIndex(newIndex);
@@ -195,14 +192,13 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
         
         console.log('🔀 Triggered Random Track Switch.');
         onTrackChange?.();
-        return; // The index change will trigger the track-change useEffect above
+        return;
       }
       
       if (!attemptedPlayRef.current) {
         attemptedPlayRef.current = true;
       }
       
-      // Regular play attempt (wait for any pending loads)
       if (playPromiseRef.current) {
         playPromiseRef.current
           .then(() => {
@@ -227,7 +223,6 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
         }
       }
     } else {
-      // Pause
       if (playPromiseRef.current) {
         playPromiseRef.current
           .then(() => {
@@ -243,18 +238,17 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
       }
       
       if (wasPlaying) {
-        attemptedPlayRef.current = true; // Mark that we've played before
+        attemptedPlayRef.current = true;
       }
     }
   }, [isPlaying, hasUserInteracted, isLoaded, shuffledTracks, currentTrackIndex, onTrackChange]);
 
-  // Handle page visibility - pause when user leaves the page
+  // Handle page visibility
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!audioRef.current) return;
       
       if (document.hidden) {
-        // User left the page - pause audio
         console.log('👋 User left page - pausing audio');
         if (playPromiseRef.current) {
           playPromiseRef.current
@@ -264,7 +258,6 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
           audioRef.current.pause();
         }
       } else if (isPlaying && hasUserInteracted && !isChangingTrackRef.current) {
-        // User returned - resume if it should be playing
         console.log('👀 User returned - resuming audio');
         const promise = audioRef.current.play();
         if (promise) {
@@ -282,6 +275,25 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [isPlaying, hasUserInteracted]);
 
-  // This component doesn't render anything - it's an invisible audio controller
+  // New effects for external controls
+  useEffect(() => {
+    if (triggerNextTrack > 0) {
+      const nextIndex = (currentTrackIndex + 1) % shuffledTracks.length;
+      setCurrentTrackIndex(nextIndex);
+    }
+  }, [triggerNextTrack]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  useEffect(() => {
+    if (onTitleChange) {
+      onTitleChange(shuffledTracks[currentTrackIndex].title);
+    }
+  }, [currentTrackIndex, onTitleChange, shuffledTracks]);
+
   return null;
 }
