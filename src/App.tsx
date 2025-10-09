@@ -13,9 +13,11 @@ import { CVModal } from './components/CVModal';
 import { LoadingScreen } from './components/LoadingScreen';
 import { AudioPlayer } from './components/AudioPlayer';
 import { WelcomeBanner } from './components/WelcomeBanner';
+import { AudioController } from './components/AudioController';
+import { AnimatePresence } from 'motion/react';
 
 export default function App() {
-  const [isDark, setIsDark] = useState(true); // Default to dark theme
+  const [isDark, setIsDark] = useState(true);
   const [showCVModal, setShowCVModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -25,43 +27,20 @@ export default function App() {
     images: false,
     threeJs: false
   });
+  const [currentTrackTitle, setCurrentTrackTitle] = useState('');
+  const [triggerNextTrack, setTriggerNextTrack] = useState(0);
+  const [volume, setVolume] = useState(0.25);
+  const [showAudioController, setShowAudioController] = useState(false);
 
   useEffect(() => {
-    // Set dark theme as default
     document.documentElement.classList.add('dark');
-
-    // DOM loaded
-    const domTimer = setTimeout(() => {
-      setComponentsLoaded(prev => ({ ...prev, dom: true }));
-    }, 500);
-
-    // Track when important images are loaded
-    const imagePromises: Promise<void>[] = [];
-    const images = document.querySelectorAll('img');
-    
-    images.forEach(img => {
-      if (img.complete) return;
-      
-      const promise = new Promise<void>((resolve) => {
-        img.onload = () => resolve();
-        img.onerror = () => resolve(); // Continue even if image fails
-      });
-      imagePromises.push(promise);
-    });
-
-    Promise.all(imagePromises).then(() => {
-      setComponentsLoaded(prev => ({ ...prev, images: true }));
-    });
-
-    // Wait for Three.js components (LiquidEther, DomeGallery)
-    const threeJsTimer = setTimeout(() => {
-      setComponentsLoaded(prev => ({ ...prev, threeJs: true }));
-    }, 2000); // Give Three.js components time to initialize
-
-    return () => {
-      clearTimeout(domTimer);
-      clearTimeout(threeJsTimer);
-    };
+    const domTimer = setTimeout(() => setComponentsLoaded(prev => ({ ...prev, dom: true })), 500);
+    const imagePromises = Array.from(document.querySelectorAll('img')).map(img => 
+      !img.complete ? new Promise(resolve => { img.onload = img.onerror = resolve; }) : Promise.resolve()
+    );
+    Promise.all(imagePromises).then(() => setComponentsLoaded(prev => ({ ...prev, images: true })));
+    const threeJsTimer = setTimeout(() => setComponentsLoaded(prev => ({ ...prev, threeJs: true })), 2000);
+    return () => { clearTimeout(domTimer); clearTimeout(threeJsTimer); };
   }, []);
 
   const toggleTheme = () => {
@@ -73,45 +52,32 @@ export default function App() {
     const newState = !isAudioPlaying;
     setIsAudioPlaying(newState);
     localStorage.setItem('audioPlaying', JSON.stringify(newState));
-    
-    // Mark as interacted when user toggles audio
-    if (!hasUserInteracted) {
-      setHasUserInteracted(true);
-    }
+    if (!hasUserInteracted) setHasUserInteracted(true);
   };
 
   const scrollToContact = () => {
-    const contactSection = document.querySelector('#contact');
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleShowCVModal = () => {
-    setShowCVModal(true);
-  };
-
-  // Note: Loading screen now handles its own completion state
-  // It will show "ready to enter" when all components are loaded
-
-  const handleLoadingComplete = () => {
-    setIsLoading(false);
-  };
+  const handleShowCVModal = () => setShowCVModal(true);
+  const handleLoadingComplete = () => setIsLoading(false);
+  const handleNextTrack = () => setTriggerNextTrack(c => c + 1);
 
   const handleEnterSite = () => {
-    // Mark user as interacted
     setHasUserInteracted(true);
-    
-    // Auto-start music
     const savedAudioPref = localStorage.getItem('audioPlaying');
-    if (savedAudioPref === null || JSON.parse(savedAudioPref) === true) {
+    if (savedAudioPref === null || JSON.parse(savedAudioPref)) {
       setIsAudioPlaying(true);
       localStorage.setItem('audioPlaying', 'true');
     }
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div 
+      className="min-h-screen bg-background text-foreground"
+      onMouseEnter={() => setShowAudioController(true)}
+      onMouseLeave={() => setShowAudioController(false)}
+    >
       <LoadingScreen 
         isVisible={isLoading} 
         onComplete={handleLoadingComplete}
@@ -119,14 +85,28 @@ export default function App() {
         componentsLoaded={componentsLoaded}
       />
 
-      {/* Background Audio Player */}
       <AudioPlayer 
         isPlaying={isAudioPlaying}
         onPlayStateChange={setIsAudioPlaying}
         hasUserInteracted={hasUserInteracted}
+        onTitleChange={setCurrentTrackTitle}
+        triggerNextTrack={triggerNextTrack}
+        volume={volume}
       />
 
-      {/* Hide header during loading */}
+      <AnimatePresence>
+        {showAudioController && !isLoading && (
+          <AudioController
+            isPlaying={isAudioPlaying}
+            onPlayPause={toggleAudio}
+            onNext={handleNextTrack}
+            volume={volume}
+            onVolumeChange={setVolume}
+            currentTrackTitle={currentTrackTitle}
+          />
+        )}
+      </AnimatePresence>
+
       {!isLoading && (
         <Header 
           isDark={isDark} 
@@ -144,9 +124,7 @@ export default function App() {
           isDark={isDark}
           onHeroReady={() => setComponentsLoaded(prev => ({ ...prev, threeJs: true }))}
         />
-
         <ScrollVelocitySection />
-
         <About />
         <Testimonials />
         <Education />
@@ -156,12 +134,7 @@ export default function App() {
       </main>
       
       <Footer />
-
-      <CVModal 
-        isOpen={showCVModal} 
-        onClose={() => setShowCVModal(false)} 
-      />
-
+      <CVModal isOpen={showCVModal} onClose={() => setShowCVModal(false)} />
       <WelcomeBanner showAfterEnter={hasUserInteracted} />
     </div>
   );
