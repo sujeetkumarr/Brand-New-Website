@@ -7,10 +7,9 @@ interface AudioPlayerProps {
   onTrackChange?: () => void;
 }
 
-// Classical Indian music tracks (using corrected, stable raw GitHub URLs)
+// Classical Indian music tracks (CRITICAL FIX: URLs cleaned to standard raw.githubusercontent.com format)
 const AUDIO_TRACKS = [
   {
-    // FIX: Removed the unstable URL segment '/refs/heads/main/src/assets/music~/'
     url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music/aaye-na-balam.mp3',
     title: 'Aaye Na Balam - Thumri'
   },
@@ -140,6 +139,8 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
     // Define logic to load and potentially play the new track
     const loadAndPlayTrack = () => {
       audio.pause();
+      // Console logging the URL we are attempting to load is critical for debugging
+      console.log('Loading new track from URL:', shuffledTracks[currentTrackIndex].url); 
       audio.src = shuffledTracks[currentTrackIndex].url;
       audio.load();
       
