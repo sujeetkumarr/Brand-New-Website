@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Download } from 'lucide-react';
-import { AudioControls } from './AudioControls'; // NEW IMPORT
+import { AudioControls } from './AudioControls'; // NEW IMPORT: This is where the error was pointing
 
 interface HeaderProps {
   isDark: boolean;
