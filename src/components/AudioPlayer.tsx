@@ -10,16 +10,32 @@ interface AudioPlayerProps {
 // Classical Indian music tracks from Internet Archive (copyright-free)
 const AUDIO_TRACKS = [
   {
-    url: 'https://github.com/sujeetkumarr/mrkadam.tech/raw/refs/heads/main/assets/Aaye%20Na%20Balam%20-%20Thumri(MP3_160K).mp3',
+    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/aaye-na-balam.mp3',
     title: 'Aaye Na Balam - Thumri'
   },
   {
-    url: 'https://github.com/sujeetkumarr/mrkadam.tech/raw/refs/heads/main/assets/Abdul%20Karim%20Khan%20_%20Phagwa%20Brij%20Dekhanko%20(Raga%20Basabt)(MP3_160K).mp3',
+    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/abdul-karim-khan-phagwa.mp3',
     title: 'Abdul Karim Khan - Phagwa Brij Dekhanko'
   },
   {
-    url: 'https://github.com/sujeetkumarr/mrkadam.tech/raw/refs/heads/main/assets/Pandit%20Bhimsen%20Joshi%20-%20Explosive%20Performance%20-%201971%20-%20Miyan%20ki%20Malhar(MP3_160K).mp3',
-    title: 'Pandit Bhimsen Joshi - Miyan ki Malhar'
+    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/ghei-chhand.mp3',
+    title: 'Ghei Chand Makrand'
+  },
+  {
+    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/hamri-atariya-pe-aao.mp3',
+    title: 'Hamari Atariya Pe'
+  },
+  {
+    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/mi-radhika.mp3',
+    title: 'Mi Radhika'
+  },
+  {
+    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/pandit-bhimsen-joshi-miyan-ki-malhar.mp3',
+    title: 'Miyan ki malhar'
+  },
+  {
+    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/thumri-naina-more.mp3',
+    title: 'Naina More Tabas Gaye'
   }
 ];
 
