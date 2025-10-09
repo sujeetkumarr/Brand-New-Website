@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 
-// --- 1. LOCAL AUDIO IMPORTS (Requires files renamed as in Pre-Step) ---
+// 1. IMPORT YOUR AUDIO FILES HERE (Must match files in src/assets/music)
 import trackMiRadhika from '@/assets/music/mi-radhika.mp3';
 import trackHamriAtariya from '@/assets/music/hamri-atariya-pe-aao.mp3';
 import trackGheiChhand from '@/assets/music/ghei-chhand.mp3';
@@ -14,7 +14,6 @@ interface AudioPlayerProps {
   isPlaying: boolean;
   onPlayStateChange?: (isPlaying: boolean) => void;
   hasUserInteracted: boolean;
-  // onTrackChange removed as it's now internal to the hook
 }
 
 export interface Track {
@@ -43,6 +42,7 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
+// --- Singleton Context for External Controls ---
 const AudioControlsContext = (function() {
   let audioRef: React.MutableRefObject<HTMLAudioElement | null>;
   let shuffledTracksRef: React.MutableRefObject<Track[]>;
@@ -65,13 +65,13 @@ const AudioControlsContext = (function() {
   };
 
   const playNext = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !isPlayingRef.current) return;
     const nextIndex = (currentTrackIndexRef.current + 1) % shuffledTracksRef.current.length;
     setCurrentTrackIndex(nextIndex);
   };
 
   const playPrev = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !isPlayingRef.current) return;
     const prevIndex = (currentTrackIndexRef.current - 1 + shuffledTracksRef.current.length) % shuffledTracksRef.current.length;
     setCurrentTrackIndex(prevIndex);
   };
@@ -101,19 +101,32 @@ export function useAudioControls() {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [currentIndex, setIndex] = useState(0);
 
+  // Poll for changes in the internal player state
+  useEffect(() => {
+    const updateState = () => {
+      setCurrentTrack(AudioControlsContext.trackList[AudioControlsContext.currentTrackIndexRef?.current || 0] || null);
+      setIndex(AudioControlsContext.currentTrackIndexRef?.current || 0);
+    };
+
+    // Update once immediately
+    updateState();
+
+    // Set up a listener for continuous updates (re-using AudioPlayer's component logic)
+    const interval = setInterval(updateState, 500); // Poll every half second
+    return () => clearInterval(interval);
+
+  }, [AudioControlsContext.trackList]);
+
   const controls = useMemo(() => ({
     ...AudioControlsContext,
     currentTrack,
     currentIndex,
   }), [currentTrack, currentIndex]);
 
-  useEffect(() => {
-    setCurrentTrack(AudioControlsContext.trackList[AudioControlsContext.currentTrackIndexRef?.current || 0] || null);
-    setIndex(AudioControlsContext.currentTrackIndexRef?.current || 0);
-  }, []);
 
   return controls;
 }
+// ---------------------------------------------
 
 
 export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted }: AudioPlayerProps) {
@@ -212,7 +225,7 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted }:
 
   // Update track when index changes
   useEffect(() => {
-    if (!audioRef.current || currentTrackIndex === 0) return;
+    if (!audioRef.current) return;
     
     const audio = audioRef.current;
     const shouldAutoPlay = isPlaying && hasUserInteracted && wasPlayingRef.current;
