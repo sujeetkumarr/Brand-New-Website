@@ -10,31 +10,31 @@ interface AudioPlayerProps {
 // Classical Indian music tracks from Internet Archive (copyright-free)
 const AUDIO_TRACKS = [
   {
-    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/aaye-na-balam.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/aaye-na-balam.mp3',
     title: 'Aaye Na Balam - Thumri'
   },
   {
-    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/abdul-karim-khan-phagwa.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/abdul-karim-khan-phagwa.mp3',
     title: 'Abdul Karim Khan - Phagwa Brij Dekhanko'
   },
   {
-    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/ghei-chhand.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/ghei-chhand.mp3',
     title: 'Ghei Chand Makrand'
   },
   {
-    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/hamri-atariya-pe-aao.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/hamri-atariya-pe-aao.mp3',
     title: 'Hamari Atariya Pe'
   },
   {
-    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/mi-radhika.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/mi-radhika.mp3',
     title: 'Mi Radhika'
   },
   {
-    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/pandit-bhimsen-joshi-miyan-ki-malhar.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/pandit-bhimsen-joshi-miyan-ki-malhar.mp3',
     title: 'Miyan ki malhar'
   },
   {
-    url: 'https://github.com/sujeetkumarr/Brand-New-Website/raw/refs/heads/main/src/assets/music~/thumri-naina-more.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/thumri-naina-more.mp3',
     title: 'Naina More Tabas Gaye'
   }
 ];
