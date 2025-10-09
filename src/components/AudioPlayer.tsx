@@ -7,34 +7,35 @@ interface AudioPlayerProps {
   onTrackChange?: () => void;
 }
 
-// Classical Indian music tracks from Internet Archive (copyright-free)
+// Classical Indian music tracks (using corrected, stable raw GitHub URLs)
 const AUDIO_TRACKS = [
   {
-    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/aaye-na-balam.mp3',
+    // FIX: Removed the unstable URL segment '/refs/heads/main/src/assets/music~/'
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music/aaye-na-balam.mp3',
     title: 'Aaye Na Balam - Thumri'
   },
   {
-    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/abdul-karim-khan-phagwa.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music/abdul-karim-khan-phagwa.mp3',
     title: 'Abdul Karim Khan - Phagwa Brij Dekhanko'
   },
   {
-    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/ghei-chhand.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music/ghei-chhand.mp3',
     title: 'Ghei Chand Makrand'
   },
   {
-    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/hamri-atariya-pe-aao.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music/hamri-atariya-pe-aao.mp3',
     title: 'Hamari Atariya Pe'
   },
   {
-    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/mi-radhika.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music/mi-radhika.mp3',
     title: 'Mi Radhika'
   },
   {
-    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/pandit-bhimsen-joshi-miyan-ki-malhar.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music/pandit-bhimsen-joshi-miyan-ki-malhar.mp3',
     title: 'Miyan ki malhar'
   },
   {
-    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/refs/heads/main/src/assets/music~/thumri-naina-more.mp3',
+    url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music/thumri-naina-more.mp3',
     title: 'Naina More Tabas Gaye'
   }
 ];
@@ -125,9 +126,10 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
     };
   }, []); // Only run once on mount
 
-  // Update track when index changes
+  // Update track when index changes (Fixed Logic)
   useEffect(() => {
-    if (!audioRef.current || currentTrackIndex === 0) return; // Skip initial load
+    // FIX: Removed the buggy '|| currentTrackIndex === 0' check.
+    if (!audioRef.current) return; 
     
     const audio = audioRef.current;
     const shouldAutoPlay = isPlaying && hasUserInteracted && wasPlayingRef.current;
@@ -135,35 +137,8 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
     isChangingTrackRef.current = true;
     setIsLoaded(false);
     
-    // Wait for any pending play promises to complete
-    if (playPromiseRef.current) {
-      playPromiseRef.current
-        .then(() => {
-          audio.pause();
-          audio.src = shuffledTracks[currentTrackIndex].url;
-          audio.load();
-          
-          if (shouldAutoPlay) {
-            audio.addEventListener('canplay', function playOnReady() {
-              audio.removeEventListener('canplay', playOnReady);
-              const promise = audio.play();
-              if (promise) {
-                playPromiseRef.current = promise;
-                promise.catch((error) => {
-                  if (error.name !== 'AbortError') {
-                    console.log('🔇 Play prevented:', error.message);
-                  }
-                });
-              }
-            }, { once: true });
-          }
-        })
-        .catch(() => {
-          audio.pause();
-          audio.src = shuffledTracks[currentTrackIndex].url;
-          audio.load();
-        });
-    } else {
+    // Define logic to load and potentially play the new track
+    const loadAndPlayTrack = () => {
       audio.pause();
       audio.src = shuffledTracks[currentTrackIndex].url;
       audio.load();
@@ -182,6 +157,13 @@ export function AudioPlayer({ isPlaying, onPlayStateChange, hasUserInteracted, o
           }
         }, { once: true });
       }
+    };
+
+    // Wait for any pending play promises before changing track source
+    if (playPromiseRef.current) {
+      playPromiseRef.current.then(loadAndPlayTrack).catch(loadAndPlayTrack);
+    } else {
+      loadAndPlayTrack();
     }
   }, [currentTrackIndex, shuffledTracks, isPlaying, hasUserInteracted]);
 
