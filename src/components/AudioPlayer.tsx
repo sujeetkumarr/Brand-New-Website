@@ -110,7 +110,7 @@ export function AudioPlayer({
     };
     if (playPromiseRef.current) playPromiseRef.current.then(loadAndPlayTrack).catch(loadAndPlayTrack);
     else loadAndPlayTrack();
-  }, [currentTrackIndex, shuffledTracks]);
+  }, [currentTrackIndex]);
 
   useEffect(() => {
     if (!audioRef.current || !isLoaded || isChangingTrackRef.current) return;
@@ -134,23 +134,18 @@ export function AudioPlayer({
     }
   }, [isPlaying, hasUserInteracted, isLoaded]);
 
-  // **FIX STARTS HERE**
   useEffect(() => {
     const wasPlayingBeforeHide = { current: false };
-
     const handleVisibilityChange = () => {
       if (!audioRef.current) return;
-
       if (document.hidden) {
-        // Tab is now hidden. Check if audio is playing and store that state.
         if (!audioRef.current.paused) {
           wasPlayingBeforeHide.current = true;
-          audioRef.current.pause(); // Directly pause the audio
+          audioRef.current.pause();
         }
       } else {
-        // Tab is now visible. If it was playing before we left, resume it.
         if (wasPlayingBeforeHide.current) {
-          const promise = audioRef.current.play(); // Directly play the audio
+          const promise = audioRef.current.play();
           if (promise) {
             promise.catch((error) => {
               if (error.name !== 'AbortError') {
@@ -161,11 +156,9 @@ export function AudioPlayer({
         }
       }
     };
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []); // This effect runs once and manages its own state, preventing conflicts.
-  // **FIX ENDS HERE**
+  }, []);
 
   useEffect(() => {
     if (triggerNextTrack > 0) {
