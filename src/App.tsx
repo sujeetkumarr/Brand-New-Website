@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useScrollingTitle } from './hooks/useScrollingTitle'; // Import the new hook
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { ScrollVelocitySection } from './components/ScrollVelocitySection';
@@ -14,6 +15,9 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { AudioPlayer } from './components/AudioPlayer';
 
 export default function App() {
+  const scrollingTitleText = "Sujeetkumar Kadam • Marketing & Strategy Consultant • Living at the intersection of branding, strategy, and culture • ";
+  useScrollingTitle(scrollingTitleText, 250);
+
   const [isDark, setIsDark] = useState(true);
   const [showCVModal, setShowCVModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
