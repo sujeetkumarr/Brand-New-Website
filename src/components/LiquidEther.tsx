@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { THREE } from '../utils/three'; 
-
-// NOTE: The CSS dependency is handled via the <style> tag in the render function.
+import React, { useEffect, useRef } from 'react';
+import { THREE } from '../utils/three'; // Correctly imports the singleton instance
+import './LiquidEther.css';
 
 export interface LiquidEtherProps {
   mouseForce?: number;
@@ -57,10 +56,10 @@ interface LiquidEtherWebGL {
 const defaultColors = ['#5227FF', '#FF9FFC', '#B19EEF'];
 
 export default function LiquidEther({
-  mouseForce = 50, // TUNED: Stronger ripple strength for longer duration (was 40)
-  cursorSize = 20, // TUNED: 50% smaller size as requested (was 40)
+  mouseForce = 20,
+  cursorSize = 100,
   isViscous = false,
-  viscous = 10, // TUNED: Reduced viscosity for longer-lasting flow (was 30)
+  viscous = 30,
   iterationsViscous = 32,
   iterationsPoisson = 32,
   dt = 0.014,
@@ -72,10 +71,10 @@ export default function LiquidEther({
   className = '',
   autoDemo = true,
   autoSpeed = 0.5,
-  autoIntensity = 4.5, // TUNED: Stronger background flow for smoother transition
-  takeoverDuration = 0.5, // TUNED: Smoother takeover transition (was 0.25)
-  autoResumeDelay = 5000, // TUNED: Longer delay (5s) before auto-demo resumes (was 3000ms)
-  autoRampDuration = 1.2 // TUNED: Longer ramp-up for smoother fade-in (was 0.6)
+  autoIntensity = 2.2,
+  takeoverDuration = 0.25,
+  autoResumeDelay = 1000,
+  autoRampDuration = 0.6
 }: LiquidEtherProps): React.ReactElement {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const webglRef = useRef<LiquidEtherWebGL | null>(null);
@@ -84,16 +83,9 @@ export default function LiquidEther({
   const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
   const isVisibleRef = useRef<boolean>(true);
   const resizeRafRef = useRef<number | null>(null);
-  const [webglError, setWebglError] = useState<boolean>(false); 
 
   useEffect(() => {
     if (!mountRef.current) return;
-    
-    // Ensure we don't create multiple WebGL contexts
-    const existingCanvas = mountRef.current.querySelector('canvas');
-    if (existingCanvas) {
-      existingCanvas.remove();
-    }
 
     function makePaletteTexture(stops: string[]): THREE.DataTexture {
       let arr: string[];
@@ -125,60 +117,48 @@ export default function LiquidEther({
     const bgVec4 = new THREE.Vector4(0, 0, 0, 0);
 
     class CommonClass {
-        width = 0;
-        height = 0;
-        aspect = 1;
-        pixelRatio = 1;
-        isMobile = false;
-        breakpoint = 768;
-        fboWidth: number | null = null;
-        fboHeight: number | null = null;
-        time = 0;
-        delta = 0;
-        container: HTMLElement | null = null;
-        renderer: THREE.WebGLRenderer | null = null;
-        clock: THREE.Clock | null = null;
-        init(container: HTMLElement) {
-          this.container = container;
-          this.pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-          this.resize();
-          
-          try {
-            this.renderer = new THREE.WebGLRenderer({ 
-              antialias: false, 
-              alpha: true,
-              powerPreference: 'high-performance',
-              failIfMajorPerformanceCaveat: false
-            });
-          } catch (error) {
-            console.error('Failed to create WebGLRenderer:', error);
-            throw new Error('WebGL context creation failed');
-          }
-          
-          this.renderer.autoClear = false;
-          this.renderer.setClearColor(new THREE.Color(0x000000), 0);
-          this.renderer.setPixelRatio(this.pixelRatio);
-          this.renderer.setSize(this.width, this.height);
-          const el = this.renderer.domElement;
-          el.style.width = '100%';
-          el.style.height = '100%';
-          el.style.display = 'block';
-          this.clock = new THREE.Clock();
-          this.clock.start();
-        }
-        resize() {
-          if (!this.container) return;
-          const rect = this.container.getBoundingClientRect();
-          this.width = Math.max(1, Math.floor(rect.width));
-          this.height = Math.max(1, Math.floor(rect.height));
-          this.aspect = this.width / this.height;
-          if (this.renderer) this.renderer.setSize(this.width, this.height, false);
-        }
-        update() {
-          if (!this.clock) return;
-          this.delta = this.clock.getDelta();
-          this.time += this.delta;
-        }
+      width = 0;
+      height = 0;
+      aspect = 1;
+      pixelRatio = 1;
+      isMobile = false;
+      breakpoint = 768;
+      fboWidth: number | null = null;
+      fboHeight: number | null = null;
+      time = 0;
+      delta = 0;
+      container: HTMLElement | null = null;
+      renderer: THREE.WebGLRenderer | null = null;
+      clock: THREE.Clock | null = null;
+      init(container: HTMLElement) {
+        this.container = container;
+        this.pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        this.resize();
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer.autoClear = false;
+        this.renderer.setClearColor(new THREE.Color(0x000000), 0);
+        this.renderer.setPixelRatio(this.pixelRatio);
+        this.renderer.setSize(this.width, this.height);
+        const el = this.renderer.domElement;
+        el.style.width = '100%';
+        el.style.height = '100%';
+        el.style.display = 'block';
+        this.clock = new THREE.Clock();
+        this.clock.start();
+      }
+      resize() {
+        if (!this.container) return;
+        const rect = this.container.getBoundingClientRect();
+        this.width = Math.max(1, Math.floor(rect.width));
+        this.height = Math.max(1, Math.floor(rect.height));
+        this.aspect = this.width / this.height;
+        if (this.renderer) this.renderer.setSize(this.width, this.height, false);
+      }
+      update() {
+        if (!this.clock) return;
+        this.delta = this.clock.getDelta();
+        this.time += this.delta;
+      }
     }
     const Common = new CommonClass();
 
@@ -660,12 +640,10 @@ export default function LiquidEther({
         const props = args[0] || {};
         const forceX = (Mouse.diff.x / 2) * (props.mouse_force || 0);
         const forceY = (Mouse.diff.y / 2) * (props.mouse_force || 0);
-        
         const cellScale = props.cellScale || { x: 1, y: 1 };
         const cursorSize = props.cursor_size || 0;
         const cursorSizeX = cursorSize * cellScale.x;
         const cursorSizeY = cursorSize * cellScale.y;
-        
         const centerX = Math.min(
           Math.max(Mouse.coords.x, -1 + cursorSizeX + cellScale.x * 2),
           1 - cursorSizeX - cellScale.x * 2
@@ -674,7 +652,6 @@ export default function LiquidEther({
           Math.max(Mouse.coords.y, -1 + cursorSizeY + cellScale.y * 2),
           1 - cursorSizeY - cellScale.y * 2
         );
-        
         const uniforms = (this.mouse.material as THREE.RawShaderMaterial).uniforms;
         uniforms.force.value.set(forceX, forceY);
         uniforms.center.value.set(centerX, centerY);
@@ -1085,30 +1062,20 @@ export default function LiquidEther({
       }
     }
 
-    // --- WebGL Initialization ---
-
     const container = mountRef.current;
     container.style.position = container.style.position || 'relative';
     container.style.overflow = container.style.overflow || 'hidden';
 
-    let webgl: WebGLManager;
-    try {
-      webgl = new WebGLManager({
-        $wrapper: container,
-        autoDemo,
-        autoSpeed,
-        autoIntensity,
-        takeoverDuration,
-        autoResumeDelay,
-        autoRampDuration
-      });
-      webglRef.current = webgl;
-    } catch (error) {
-      // Catch errors thrown by CommonClass.init() if WebGL context fails
-      console.error('Failed to initialize LiquidEther WebGL:', error);
-      setWebglError(true);
-      return;
-    }
+    const webgl = new WebGLManager({
+      $wrapper: container,
+      autoDemo,
+      autoSpeed,
+      autoIntensity,
+      takeoverDuration,
+      autoResumeDelay,
+      autoRampDuration
+    });
+    webglRef.current = webgl;
 
     const applyOptionsFromProps = () => {
       if (!webglRef.current) return;
@@ -1132,7 +1099,6 @@ export default function LiquidEther({
     applyOptionsFromProps();
     webgl.start();
 
-    // IntersectionObserver (KEEP THIS)
     const io = new IntersectionObserver(
       entries => {
         const entry = entries[0];
@@ -1150,7 +1116,6 @@ export default function LiquidEther({
     io.observe(container);
     intersectionObserverRef.current = io;
 
-    // ResizeObserver (KEEP THIS)
     const ro = new ResizeObserver(() => {
       if (!webglRef.current) return;
       if (resizeRafRef.current) cancelAnimationFrame(resizeRafRef.current);
@@ -1161,8 +1126,7 @@ export default function LiquidEther({
     });
     ro.observe(container);
     resizeObserverRef.current = ro;
-    
-    // Clean up function remains the same (CRITICAL for preventing context loss)
+
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (resizeObserverRef.current) {
@@ -1185,7 +1149,23 @@ export default function LiquidEther({
       webglRef.current = null;
     };
   }, [
-    BFECC, cursorSize, dt, isBounce, isViscous, iterationsPoisson, iterationsViscous, mouseForce, resolution, viscous, colors, autoDemo, autoSpeed, autoIntensity, takeoverDuration, autoResumeDelay, autoRampDuration
+    BFECC,
+    cursorSize,
+    dt,
+    isBounce,
+    isViscous,
+    iterationsPoisson,
+    iterationsViscous,
+    mouseForce,
+    resolution,
+    viscous,
+    colors,
+    autoDemo,
+    autoSpeed,
+    autoIntensity,
+    takeoverDuration,
+    autoResumeDelay,
+    autoRampDuration
   ]);
 
   useEffect(() => {
@@ -1218,65 +1198,23 @@ export default function LiquidEther({
     }
     if (resolution !== prevRes) sim.resize();
   }, [
-    mouseForce, cursorSize, isViscous, viscous, iterationsViscous, iterationsPoisson, dt, BFECC, resolution, isBounce, autoDemo, autoSpeed, autoIntensity, takeoverDuration, autoResumeDelay, autoRampDuration
+    mouseForce,
+    cursorSize,
+    isViscous,
+    viscous,
+    iterationsViscous,
+    iterationsPoisson,
+    dt,
+    BFECC,
+    resolution,
+    isBounce,
+    autoDemo,
+    autoSpeed,
+    autoIntensity,
+    takeoverDuration,
+    autoResumeDelay,
+    autoRampDuration
   ]);
 
-  // --- Inline Styles to Replace Missing CSS File ---
-  const globalStyles = `
-    .liquid-ether-container {
-      position: relative;
-      overflow: hidden;
-      width: 100%;
-      height: 100%;
-      touch-action: none;
-    }
-    .liquid-ether-fallback {
-      position: relative;
-      overflow: hidden;
-      width: 100%;
-      height: 100%;
-    }
-    @keyframes liquidEtherFallback {
-      0% { background-position: 0% 0%; }
-      50% { background-position: 100% 100%; }
-      100% { background-position: 0% 0%; }
-    }
-  `;
-
-  // Render CSS fallback if WebGL failed
-  if (webglError) {
-    const fallbackStyle: React.CSSProperties = {
-      ...style,
-      background: `
-        radial-gradient(circle at 20% 50%, ${colors[0]}22 0%, transparent 50%),
-        radial-gradient(circle at 80% 50%, ${colors[1]}22 0%, transparent 50%),
-        radial-gradient(circle at 50% 80%, ${colors[2] || colors[0]}22 0%, transparent 50%),
-        linear-gradient(135deg, ${colors[0]}11 0%, ${colors[1]}11 100%)
-      `,
-      animation: 'liquidEtherFallback 20s ease-in-out infinite',
-    };
-    
-    return (
-      <>
-        <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
-        <div 
-          ref={mountRef} 
-          className={`liquid-ether-fallback ${className || ''}`} 
-          style={fallbackStyle}
-        />
-      </>
-    );
-  }
-
-  return (
-    <>
-      {/* Inject styles immediately before the container element */}
-      <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
-      <div 
-        ref={mountRef} 
-        className={`liquid-ether-container ${className || ''}`} 
-        style={style} 
-      />
-    </>
-  );
+  return <div ref={mountRef} className={`liquid-ether-container ${className || ''}`} style={style} />;
 }
