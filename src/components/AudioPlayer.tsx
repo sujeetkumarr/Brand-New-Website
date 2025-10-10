@@ -1,25 +1,27 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
+// --- PROPS INTERFACE ---
 interface AudioPlayerProps {
   isPlaying: boolean;
-  onPlayStateChange?: (isPlaying: boolean) => void;
+  onPlayStateChange: (isPlaying: boolean) => void;
   hasUserInteracted: boolean;
-  onTrackChange?: () => void;
-  onTitleChange?: (title: string) => void;
-  triggerNextTrack?: number;
+  onTitleChange: (title: string) => void;
+  triggerNextTrack: number;
   volume: number;
 }
 
+// --- AUDIO TRACKS ---
 const AUDIO_TRACKS = [
-  { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/aaye-na-balam.mp3', title: 'Aaye Na Balam - Thumri' },
-  { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/abdul-karim-khan-phagwa.mp3', title: 'Abdul Karim Khan - Phagwa Brij Dekhanko' },
-  { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/ghei-chhand.mp3', title: 'Ghei Chand Makrand' },
-  { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/hamri-atariya-pe-aao.mp3', title: 'Hamari Atariya Pe' },
-  { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/mi-radhika.mp3', title: 'Mi Radhika' },
-  { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/pandit-bhimsen-joshi-miyan-ki-malhar.mp3', title: 'Miyan ki malhar' },
-  { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/thumri-naina-more.mp3', title: 'Naina More Tabas Gaye' }
+    { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/aaye-na-balam.mp3', title: 'Aaye Na Balam - Thumri' },
+    { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/abdul-karim-khan-phagwa.mp3', title: 'Abdul Karim Khan - Phagwa Brij Dekhanko' },
+    { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/ghei-chhand.mp3', title: 'Ghei Chand Makrand' },
+    { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/hamri-atariya-pe-aao.mp3', title: 'Hamari Atariya Pe' },
+    { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/mi-radhika.mp3', title: 'Mi Radhika' },
+    { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/pandit-bhimsen-joshi-miyan-ki-malhar.mp3', title: 'Miyan ki malhar' },
+    { url: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/music~/thumri-naina-more.mp3', title: 'Naina More Tabas Gaye' }
 ];
 
+// --- SHUFFLE UTILITY ---
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -29,151 +31,126 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-export function AudioPlayer({ 
-  isPlaying, 
-  onPlayStateChange, 
-  hasUserInteracted, 
-  onTrackChange,
+// --- THE COMPONENT ---
+export function AudioPlayer({
+  isPlaying,
+  onPlayStateChange,
+  hasUserInteracted,
   onTitleChange,
   triggerNextTrack,
-  volume 
+  volume,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [shuffledTracks] = useState(() => shuffleArray(AUDIO_TRACKS));
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0); 
-  const [isLoaded, setIsLoaded] = useState(false);
-  const attemptedPlayRef = useRef(false);
-  const wasPlayingRef = useRef(false);
-  const playPromiseRef = useRef<Promise<void> | null>(null);
-  const isChangingTrackRef = useRef(false);
+  const tracksRef = useRef(shuffleArray(AUDIO_TRACKS));
+  const trackIndexRef = useRef(0);
 
+  // 1. Setup Audio Element and Event Listeners (Runs only once)
   useEffect(() => {
     const audio = new Audio();
-    audio.volume = volume;
     audio.preload = 'metadata';
-    audio.src = shuffledTracks[0].url;
     audioRef.current = audio;
 
-    const handleCanPlay = () => { setIsLoaded(true); isChangingTrackRef.current = false; };
-    const handlePlay = () => { wasPlayingRef.current = true; onPlayStateChange?.(true); };
-    const handlePause = () => { wasPlayingRef.current = false; onPlayStateChange?.(false); };
     const handleEnded = () => {
-      const nextIndex = (currentTrackIndex + 1) % shuffledTracks.length;
-      setCurrentTrackIndex(nextIndex);
-      onTrackChange?.();
-    };
-    const handleError = (e: Event) => {
-      console.error('❌ Audio error: Failed to load file. Check URL.', e); 
-      const nextIndex = (currentTrackIndex + 1) % shuffledTracks.length;
-      setCurrentTrackIndex(nextIndex);
+      // Autoplay next track when one finishes
+      trackIndexRef.current = (trackIndexRef.current + 1) % tracksRef.current.length;
+      loadTrack(true);
     };
 
-    audio.addEventListener('canplay', handleCanPlay);
-    audio.addEventListener('play', handlePlay);
-    audio.addEventListener('pause', handlePause);
+    const handleError = (e: Event) => {
+      console.error('Audio Player Error:', e);
+      // Skip to next track on error
+      trackIndexRef.current = (trackIndexRef.current + 1) % tracksRef.current.length;
+      loadTrack(true);
+    };
+    
+    // Bind events
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
+    audio.addEventListener('play', () => onPlayStateChange(true));
+    audio.addEventListener('pause', () => onPlayStateChange(false));
 
+    // Initial track load
+    loadTrack(false);
+
+    // Cleanup on component unmount
     return () => {
-      audio.removeEventListener('canplay', handleCanPlay);
-      audio.removeEventListener('play', handlePlay);
-      audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
-      if (playPromiseRef.current) playPromiseRef.current.catch(() => {});
+      audio.removeEventListener('play', () => onPlayStateChange(true));
+      audio.removeEventListener('pause', () => onPlayStateChange(false));
       audio.pause();
-      audio.src = '';
     };
   }, []);
 
-  useEffect(() => {
-    if (!audioRef.current) return;
+  // 2. Load and play a track
+  const loadTrack = (shouldPlay: boolean) => {
     const audio = audioRef.current;
-    const shouldAutoPlay = isPlaying && hasUserInteracted && wasPlayingRef.current;
-    isChangingTrackRef.current = true;
-    setIsLoaded(false);
+    if (!audio) return;
 
-    const loadAndPlayTrack = () => {
-      audio.pause();
-      audio.src = shuffledTracks[currentTrackIndex].url;
-      audio.load();
-      if (shouldAutoPlay) {
-        audio.addEventListener('canplay', function playOnReady() {
-          audio.removeEventListener('canplay', playOnReady);
-          const promise = audio.play();
-          if (promise) {
-            playPromiseRef.current = promise;
-            promise.catch(err => err.name !== 'AbortError' && console.log('🔇 Play prevented:', err.message));
-          }
-        }, { once: true });
-      }
-    };
-    if (playPromiseRef.current) playPromiseRef.current.then(loadAndPlayTrack).catch(loadAndPlayTrack);
-    else loadAndPlayTrack();
-  }, [currentTrackIndex]);
+    const track = tracksRef.current[trackIndexRef.current];
+    audio.src = track.url;
+    audio.load();
+    onTitleChange(track.title);
 
+    if (shouldPlay) {
+      audio.addEventListener('canplaythrough', () => {
+        audio.play().catch(e => console.error("Autoplay was prevented:", e));
+      }, { once: true });
+    }
+  };
+
+  // 3. Control Play/Pause based on state from App.tsx
   useEffect(() => {
-    if (!audioRef.current || !isLoaded || isChangingTrackRef.current) return;
     const audio = audioRef.current;
-    if (isPlaying && hasUserInteracted) {
-      if (!wasPlayingRef.current && attemptedPlayRef.current) {
-        const randomIndex = Math.floor(Math.random() * shuffledTracks.length);
-        setCurrentTrackIndex(shuffledTracks.length > 1 && randomIndex === currentTrackIndex ? (randomIndex + 1) % shuffledTracks.length : randomIndex);
-        onTrackChange?.();
-        return;
-      }
-      if (!attemptedPlayRef.current) attemptedPlayRef.current = true;
-      const promise = audio.play();
-      if (promise) {
-        playPromiseRef.current = promise;
-        promise.catch(err => err.name !== 'AbortError' && console.log('🔇 Autoplay prevented:', err.message));
-      }
+    if (!audio || !hasUserInteracted) return;
+
+    if (isPlaying) {
+      audio.play().catch(e => console.error("Play was prevented:", e));
     } else {
       audio.pause();
-      if (wasPlayingRef.current) attemptedPlayRef.current = true;
     }
-  }, [isPlaying, hasUserInteracted, isLoaded]);
+  }, [isPlaying, hasUserInteracted]);
 
+  // 4. Handle "Next Track" command from controller
   useEffect(() => {
-    const wasPlayingBeforeHide = { current: false };
-    const handleVisibilityChange = () => {
-      if (!audioRef.current) return;
-      if (document.hidden) {
-        if (!audioRef.current.paused) {
-          wasPlayingBeforeHide.current = true;
-          audioRef.current.pause();
-        }
-      } else {
-        if (wasPlayingBeforeHide.current) {
-          const promise = audioRef.current.play();
-          if (promise) {
-            promise.catch((error) => {
-              if (error.name !== 'AbortError') {
-                console.error('Error resuming audio on tab focus:', error);
-              }
-            });
-          }
-        }
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []);
-
-  useEffect(() => {
-    if (triggerNextTrack > 0) {
-      const nextIndex = (currentTrackIndex + 1) % shuffledTracks.length;
-      setCurrentTrackIndex(nextIndex);
+    if (triggerNextTrack > 0) { // triggerNextTrack is a counter that increments
+      trackIndexRef.current = (trackIndexRef.current + 1) % tracksRef.current.length;
+      loadTrack(isPlaying); // Play if it was already playing
     }
   }, [triggerNextTrack]);
 
+  // 5. Handle Volume control
   useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = volume;
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
   }, [volume]);
-
+  
+  // 6. Handle Tab Visibility
   useEffect(() => {
-    onTitleChange?.(shuffledTracks[currentTrackIndex].title);
-  }, [currentTrackIndex, onTitleChange, shuffledTracks]);
+    const handleVisibilityChange = () => {
+        const audio = audioRef.current;
+        if (!audio) return;
 
-  return null;
+        if (document.hidden) {
+            // If tab is hidden, pause the audio
+            if (!audio.paused) {
+                audio.pause();
+            }
+        } else {
+            // If tab is visible and it was supposed to be playing, resume it
+            if (isPlaying) {
+                audio.play().catch(e => console.error("Resume play was prevented:", e));
+            }
+        }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [isPlaying]); // Rerun this effect if isPlaying state changes
+
+
+  return null; // This component is invisible
 }
