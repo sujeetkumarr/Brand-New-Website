@@ -5,46 +5,24 @@ import { siteContent } from '../data/content';
 import LiquidEther from './LiquidEther';
 import CircularText from './CircularText';
 import { ChevronDown } from 'lucide-react';
-import portraitImage from 'figma:asset/50937da2023f484c302aad0a44100f2a514a3199.png';
 
 interface HeroProps {
   onScrollToContact: () => void;
   onShowCVModal: () => void;
-  isDark: boolean;
   onHeroReady?: () => void;
 }
 
-export function Hero({ onScrollToContact, onShowCVModal, isDark, onHeroReady }: HeroProps) {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+export function Hero({ onScrollToContact, onShowCVModal, onHeroReady }: HeroProps) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Check for reduced motion preference
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-    
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-    
-    mediaQuery.addEventListener('change', handleChange);
-    
-    // Check if mobile device
     const isMobileDevice = window.matchMedia('(pointer: coarse)').matches || 
-                          window.innerWidth < 768 ||
-                          navigator.deviceMemory < 4;
+                          window.innerWidth < 768;
     setIsMobile(isMobileDevice);
     
-    return () => {
-      mediaQuery.removeEventListener('change', handleChange);
-    };
-  }, []);
-
-  // Notify when Hero is ready
-  useEffect(() => {
     const timer = setTimeout(() => {
       onHeroReady?.();
-    }, 1000); // Give LiquidEther time to initialize
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [onHeroReady]);
@@ -60,44 +38,31 @@ export function Hero({ onScrollToContact, onShowCVModal, isDark, onHeroReady }: 
     }, 800);
   };
 
-  const renderBackground = () => {
-    // LiquidEther colors based on theme
-    const etherColors = isDark 
-      ? ['#5227FF', '#00ff88', '#8b5cf6'] // Dark theme: purple, green, violet
-      : ['#8b5cf6', '#00ff88', '#f59e0b']; // Light theme: violet, green, amber
-
-    return (
-      <div className="absolute inset-0 w-full h-full z-0" style={{ pointerEvents: 'auto' }}>
-        <LiquidEther
-          colors={etherColors}
-          mouseForce={35}
-          cursorSize={45}
-          isViscous={true}
-          viscous={8}
-          iterationsViscous={20}
-          iterationsPoisson={20}
-          dt={0.016}
-          BFECC={true}
-          resolution={isMobile ? 0.35 : 0.5}
-          isBounce={false}
-          autoDemo={true}
-          autoSpeed={0.4}
-          autoIntensity={2.5}
-          takeoverDuration={0.6}
-          autoResumeDelay={3500}
-          autoRampDuration={1.5}
-          style={{ width: '100%', height: '100%', touchAction: 'none' }}
-        />
-      </div>
-    );
-  };
+  const etherColors = ['#5227FF', '#00ff88', '#8b5cf6'];
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 grid-overlay">
-      {/* Background - Dither or Mobile Fallback */}
-      {renderBackground()}
+      <div className="absolute inset-0 w-full h-full z-0" style={{ pointerEvents: 'auto' }}>
+        <LiquidEther
+          colors={etherColors}
+          mouseForce={40}
+          cursorSize={60}
+          isViscous={true}
+          viscous={30}
+          iterationsViscous={32}
+          iterationsPoisson={32}
+          resolution={isMobile ? 0.35 : 0.5}
+          isBounce={false}
+          autoDemo={true}
+          autoSpeed={0.5}
+          autoIntensity={2.2}
+          takeoverDuration={0.25}
+          autoResumeDelay={3000}
+          autoRampDuration={0.6}
+          style={{ width: '100%', height: '100%', touchAction: 'none' }}
+        />
+      </div>
       
-      {/* Decorative Circular Text - Top Left */}
       <div className="hidden lg:block absolute top-24 left-8 pointer-events-auto opacity-25 z-20">
         <CircularText 
           text="STRATEGY • BRANDING • MARKETING • " 
@@ -107,7 +72,6 @@ export function Hero({ onScrollToContact, onShowCVModal, isDark, onHeroReady }: 
         />
       </div>
       
-      {/* Content */}
       <div className="relative z-10 container mx-auto px-6 py-24 text-center pointer-events-none">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -191,7 +155,6 @@ export function Hero({ onScrollToContact, onShowCVModal, isDark, onHeroReady }: 
           </motion.div>
         </motion.div>
 
-        {/* Scroll Down Arrow - Minimal */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -200,10 +163,7 @@ export function Hero({ onScrollToContact, onShowCVModal, isDark, onHeroReady }: 
         >
           <button
             onClick={() => {
-              const aboutSection = document.querySelector('#about');
-              if (aboutSection) {
-                aboutSection.scrollIntoView({ behavior: 'smooth' });
-              }
+              document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' });
             }}
             className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors duration-300 group"
             aria-label="Scroll to next section"
