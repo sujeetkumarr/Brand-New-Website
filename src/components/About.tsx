@@ -1,17 +1,38 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 import DomeGallery from './DomeGallery';
-// import ScrambledText from './ScrambledText'; // REMOVED: ScrambledText import
-
-// Personal images
-import portraitTraditional from 'figma:asset/1b84435a2650fdba67776cfe5cbf34931d7a6c2f.png';
-import portraitProfessional from 'figma:asset/bccc63f8666a01ca1f4d873e436f2f8e7f4ce7e6.png';
-import portraitCasual from 'figma:asset/3924095c87f6dd8f1f16961aa20482dbf7ff90d5.png';
 
 export function About() {
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [isDomeHovered, setIsDomeHovered] = useState(false);
+
+  // New, updated image list for the DomeGallery
+  const galleryImages = [
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/professional-pic.jpg', alt: 'Professional headshot of Sujeetkumar Kadam' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/toronto-professional.jpg', alt: 'Sujeetkumar Kadam at a professional event in Toronto' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/reach-conference-canada.jpg', alt: 'Speaking at the Reach Alliance conference in Canada' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/toronto-conference.jpg', alt: 'Presenting at a conference in Toronto' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/reach-group-pic.jpg', alt: 'Group photo with the Reach Alliance team' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/colombia-fieldtrip.jpg', alt: 'During a field trip in Colombia' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/colombia-fieldtrip2.jpg', alt: 'Collaborating with colleagues on a field trip in Colombia' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/colombia-field-break.jpg', alt: 'A break during fieldwork in Colombia' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/chile-andesBG.jpg', alt: 'Scenic view of the Andes mountains in Chile' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/chile-jesus-hilltop.jpg', alt: 'Visiting a hilltop statue in Chile' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/toronto-unioft.jpg', alt: 'At the University of Toronto' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/toronto-christmas.jpg', alt: 'Christmas season in Toronto' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/amsterdam-kingsday.jpg', alt: 'King\'s Day celebration in Amsterdam' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/rotterdam-schidam.jpg', alt: 'Exploring Schiedam, Rotterdam' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/rotterdam-schidam1.jpg', alt: 'Another view of Schiedam, Rotterdam' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/schidam-windmill.jpg', alt: 'A windmill in Schiedam' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/rotterdam-park.jpg', alt: 'Relaxing in a park in Rotterdam' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/rotterdam-park1.jpg', alt: 'Enjoying the scenery in a Rotterdam park' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/rotterdam-park2.jpg', alt: 'Another moment from a park in Rotterdam' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/rotterdam-casualpic.jpg', alt: 'A casual picture in Rotterdam' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/melbourne-matchday.jpg', alt: 'At a match day in Melbourne' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/melbourne-waterfront.jpg', alt: 'At the Melbourne waterfront' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/melbourne-wharf.jpg', alt: 'Exploring the wharf in Melbourne' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/Gemini_Generated_Image_63i03663i03663i0.png', alt: 'AI generated image' },
+    { src: 'https://raw.githubusercontent.com/sujeetkumarr/Brand-New-Website/main/src/assets/Gemini_Generated_Image_s5mrejs5mrejs5mr.png', alt: 'Another AI generated image' }
+  ];
 
   const hobbies = [
     {
@@ -36,30 +57,13 @@ export function About() {
 
   return (
     <section id="about" className="py-24 bg-background grid-overlay">
-      {/* Custom cursor styles for DomeGallery - Subtle, theme-aware */}
       <style>{`
-        .dome-gallery-container {
-          cursor: grab;
-        }
-        .dome-gallery-container:active {
-          cursor: grabbing;
-        }
-        
-        /* Light theme cursor - subtle gray pill */
-        .dome-gallery-container.custom-cursor {
-          cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="28" viewBox="0 0 60 28"><rect x="1" y="1" width="58" height="26" rx="13" fill="rgba(255,255,255,0.95)" stroke="rgba(0,0,0,0.15)" stroke-width="1.5"/><text x="30" y="18" font-family="system-ui, -apple-system" font-size="10" font-weight="500" fill="rgba(0,0,0,0.6)" text-anchor="middle">drag</text></svg>') 30 14, grab !important;
-        }
-        .dome-gallery-container.custom-cursor:active {
-          cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="28" viewBox="0 0 60 28"><rect x="1" y="1" width="58" height="26" rx="13" fill="rgba(240,240,240,0.95)" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/><text x="30" y="18" font-family="system-ui, -apple-system" font-size="10" font-weight="500" fill="rgba(0,0,0,0.7)" text-anchor="middle">drag</text></svg>') 30 14, grabbing !important;
-        }
-        
-        /* Dark theme cursor - subtle dark pill */
-        .dark .dome-gallery-container.custom-cursor {
-          cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="28" viewBox="0 0 60 28"><rect x="1" y="1" width="58" height="26" rx="13" fill="rgba(26,26,26,0.95)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/><text x="30" y="18" font-family="system-ui, -apple-system" font-size="10" font-weight="500" fill="rgba(255,255,255,0.7)" text-anchor="middle">drag</text></svg>') 30 14, grab !important;
-        }
-        .dark .dome-gallery-container.custom-cursor:active {
-          cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="28" viewBox="0 0 60 28"><rect x="1" y="1" width="58" height="26" rx="13" fill="rgba(30,30,30,0.95)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/><text x="30" y="18" font-family="system-ui, -apple-system" font-size="10" font-weight="500" fill="rgba(255,255,255,0.8)" text-anchor="middle">drag</text></svg>') 30 14, grabbing !important;
-        }
+        .dome-gallery-container { cursor: grab; }
+        .dome-gallery-container:active { cursor: grabbing; }
+        .dome-gallery-container.custom-cursor { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="28" viewBox="0 0 60 28"><rect x="1" y="1" width="58" height="26" rx="13" fill="rgba(255,255,255,0.95)" stroke="rgba(0,0,0,0.15)" stroke-width="1.5"/><text x="30" y="18" font-family="system-ui, -apple-system" font-size="10" font-weight="500" fill="rgba(0,0,0,0.6)" text-anchor="middle">drag</text></svg>') 30 14, grab !important; }
+        .dome-gallery-container.custom-cursor:active { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="28" viewBox="0 0 60 28"><rect x="1" y="1" width="58" height="26" rx="13" fill="rgba(240,240,240,0.95)" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/><text x="30" y="18" font-family="system-ui, -apple-system" font-size="10" font-weight="500" fill="rgba(0,0,0,0.7)" text-anchor="middle">drag</text></svg>') 30 14, grabbing !important; }
+        .dark .dome-gallery-container.custom-cursor { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="28" viewBox="0 0 60 28"><rect x="1" y="1" width="58" height="26" rx="13" fill="rgba(26,26,26,0.95)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/><text x="30" y="18" font-family="system-ui, -apple-system" font-size="10" font-weight="500" fill="rgba(255,255,255,0.7)" text-anchor="middle">drag</text></svg>') 30 14, grab !important; }
+        .dark .dome-gallery-container.custom-cursor:active { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="28" viewBox="0 0 60 28"><rect x="1" y="1" width="58" height="26" rx="13" fill="rgba(30,30,30,0.95)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/><text x="30" y="18" font-family="system-ui, -apple-system" font-size="10" font-weight="500" fill="rgba(255,255,255,0.8)" text-anchor="middle">drag</text></svg>') 30 14, grabbing !important; }
       `}</style>
 
       <div className="container mx-auto px-6">
@@ -81,7 +85,6 @@ export function About() {
           </p>
         </motion.div>
 
-        {/* Interactive Photo Gallery - Full Width */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -114,58 +117,7 @@ export function About() {
             onMouseLeave={() => setIsDomeHovered(false)}
           >
               <DomeGallery
-                images={[
-                  // Your personal images
-                  {
-                    src: portraitTraditional,
-                    alt: 'Sujeet in traditional Indian attire - celebrating cultural heritage'
-                  },
-                  {
-                    src: portraitProfessional,
-                    alt: 'Professional headshot - strategic marketing consultant'
-                  },
-                  {
-                    src: portraitCasual,
-                    alt: 'Casual portrait - authentic moment with warm lighting'
-                  },
-                  // Placeholder images (replace these with more personal photos)
-                  {
-                    src: 'https://images.unsplash.com/photo-1568983268695-74a04650c8b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25mZXJlbmNlJTIwcHJlc2VudGF0aW9uJTIwYnVzaW5lc3N8ZW58MXx8fHwxNzU3MDgyMTkyfDA&ixlib=rb-4.1.0&q=80&w=400',
-                    alt: 'Conference presentations and speaking engagements'
-                  },
-                  {
-                    src: 'https://images.unsplash.com/photo-1656836476760-77c0d09257ce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxyZXNlYXJjaCUyMGZpZWxkJTIwd29ya3xlbnwxfHx8fDE3NTcwOTcyMDF8MA&ixlib=rb-4.1.0&q=80&w=400',
-                    alt: 'Field research in Colombia with Reach Alliance'
-                  },
-                  {
-                    src: 'https://images.unsplash.com/photo-1715807998380-dc4a84402358?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxncmFkdWF0aW9uJTIwY2VyZW1vbnklMjBhY2FkZW1pY3xlbnwxfHx8fDE3NTcxMTY5OTF8MA&ixlib=rb-4.1.0&q=80&w=400',
-                    alt: 'Academic graduation and milestones'
-                  },
-                  {
-                    src: 'https://images.unsplash.com/photo-1724018305000-616597f21304?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHR0cmF2ZWwlMjBzdHVkeSUyMGFicm9hZHxlbnwxfHx8fDE3NTcxNzY5MjZ8MA&ixlib=rb-4.1.0&q=80&w=400',
-                    alt: 'International travel and study abroad experiences'
-                  },
-                  {
-                    src: 'https://images.unsplash.com/photo-1675716921224-e087a0cca69a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxuZXR3b3JraW5nJTIwYnVzaW5lc3MlMjBldmVudHxlbnwxfHx8fDE3NTcxNzY5MzB8MA&ixlib=rb-4.1.0&q=80&w=400',
-                    alt: 'Professional networking and business events'
-                  },
-                  {
-                    src: 'https://images.unsplash.com/photo-1732437334226-e96e72272bc4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxzdGFydHVwJTIwbWVldGluZyUyMGNvbGxhYm9yYXRpb258ZW58MXx8fHwxNzU3MTc2OTM0fDA&ixlib=rb-4.1.0&q=80&w=400',
-                    alt: 'Startup meetings and collaborative projects'
-                  },
-                  {
-                    src: 'https://images.unsplash.com/photo-1667918135450-e8f2c1abd480?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxhY2hpZXZlbWVudCUyMGF3YXJkJTIwcmVjb2duaXRpb258ZW58MXx8fHwxNzU3MTM0NzU1fDA&ixlib=rb-4.1.0&q=80&w=400',
-                    alt: 'Achievement awards and professional recognition'
-                  },
-                  {
-                    src: 'https://images.unsplash.com/photo-1731983568664-9c1d8a87e7a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxsaWJyYXJ5JTIwc3R1ZHklMjBhY2FkZW1pYyUyMHdvcmt8ZW58MXx8fHwxNzU3MTc2OTQxfDA&ixlib=rb-4.1.0&q=80&w=400',
-                    alt: 'Library study sessions and academic work'
-                  },
-                  {
-                    src: 'https://images.unsplash.com/photo-1659080927204-de39f5fdfb02?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxtZW50b3JzaGlwJTIwZ3VpZGFuY2UlMjBjYXJlZXJ8ZW58MXx8fHwxNzU3MTc2OTQ2fDA&ixlib=rb-4.1.0&q=80&w=400',
-                    alt: 'Mentorship and career guidance sessions'
-                  },
-                ]}
+                images={galleryImages}
                 fit={0.8}
                 minRadius={800}
                 maxVerticalRotationDeg={20}
@@ -180,7 +132,6 @@ export function About() {
             </motion.div>
         </motion.div>
 
-        {/* Personal Interests & Current Focus - Below Gallery */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -206,8 +157,6 @@ export function About() {
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     viewport={{ once: true }}
                     className="group relative"
-                    onMouseEnter={() => setHoveredCard(index)}
-                    onMouseLeave={() => setHoveredCard(null)}
                   >
                     <motion.div
                       className="bg-gradient-to-br from-card to-secondary/10 rounded-xl p-6 border border-border/50 hover:border-accent/30 transition-all duration-300 cursor-pointer overflow-hidden"
@@ -217,10 +166,6 @@ export function About() {
                       <div className="flex items-start gap-4">
                         <motion.div 
                           className="text-3xl"
-                          animate={{ 
-                            rotate: hoveredCard === index ? [0, -10, 10, -10, 0] : 0,
-                            scale: hoveredCard === index ? 1.1 : 1
-                          }}
                           transition={{ duration: 0.5 }}
                         >
                           {hobby.icon}
@@ -232,14 +177,8 @@ export function About() {
                           <p className="text-sm text-muted-foreground italic mb-3">
                             {hobby.moodLine}
                           </p>
-                          
-                          {/* Expandable detail on hover */}
                           <motion.div
                             initial={{ height: 0, opacity: 0 }}
-                            animate={{ 
-                              height: hoveredCard === index ? 'auto' : 0,
-                              opacity: hoveredCard === index ? 1 : 0
-                            }}
                             transition={{ duration: 0.3, ease: 'easeInOut' }}
                             className="overflow-hidden"
                           >
