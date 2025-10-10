@@ -12,9 +12,6 @@ import { Footer } from './components/Footer';
 import { CVModal } from './components/CVModal';
 import { LoadingScreen } from './components/LoadingScreen';
 import { AudioPlayer } from './components/AudioPlayer';
-import { WelcomeBanner } from './components/WelcomeBanner';
-import { AudioController } from './components/AudioController';
-import { AnimatePresence } from 'motion/react';
 
 export default function App() {
   const [isDark, setIsDark] = useState(true);
@@ -30,7 +27,6 @@ export default function App() {
   const [currentTrackTitle, setCurrentTrackTitle] = useState('');
   const [triggerNextTrack, setTriggerNextTrack] = useState(0);
   const [volume, setVolume] = useState(0.25);
-  const [showAudioController, setShowAudioController] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
@@ -73,11 +69,7 @@ export default function App() {
   };
 
   return (
-    <div 
-      className="min-h-screen bg-background text-foreground"
-      onMouseEnter={() => setShowAudioController(true)}
-      onMouseLeave={() => setShowAudioController(false)}
-    >
+    <div className="min-h-screen bg-background text-foreground">
       <LoadingScreen 
         isVisible={isLoading} 
         onComplete={handleLoadingComplete}
@@ -94,19 +86,6 @@ export default function App() {
         volume={volume}
       />
 
-      <AnimatePresence>
-        {showAudioController && !isLoading && (
-          <AudioController
-            isPlaying={isAudioPlaying}
-            onPlayPause={toggleAudio}
-            onNext={handleNextTrack}
-            volume={volume}
-            onVolumeChange={setVolume}
-            currentTrackTitle={currentTrackTitle}
-          />
-        )}
-      </AnimatePresence>
-
       {!isLoading && (
         <Header 
           isDark={isDark} 
@@ -114,6 +93,10 @@ export default function App() {
           isAudioPlaying={isAudioPlaying}
           onAudioToggle={toggleAudio}
           onShowCVModal={handleShowCVModal}
+          onNextTrack={handleNextTrack}
+          volume={volume}
+          onVolumeChange={setVolume}
+          currentTrackTitle={currentTrackTitle}
         />
       )}
       
@@ -135,7 +118,6 @@ export default function App() {
       
       <Footer />
       <CVModal isOpen={showCVModal} onClose={() => setShowCVModal(false)} />
-      <WelcomeBanner showAfterEnter={hasUserInteracted} />
     </div>
   );
 }
