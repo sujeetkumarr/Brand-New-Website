@@ -132,7 +132,7 @@ export function Header({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute top-full right-0 mt-2"
+                    className="absolute top-full mt-2 right-1/2 translate-x-1/2 md:right-0 md:translate-x-0"
                   >
                     <AudioController
                       isPlaying={isAudioPlaying}
