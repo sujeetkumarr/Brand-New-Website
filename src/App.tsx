@@ -47,7 +47,6 @@ export default function App() {
   const toggleAudio = () => {
     const newState = !isAudioPlaying;
     setIsAudioPlaying(newState);
-    localStorage.setItem('audioPlaying', JSON.stringify(newState));
     if (!hasUserInteracted) setHasUserInteracted(true);
   };
 
@@ -61,10 +60,9 @@ export default function App() {
 
   const handleEnterSite = () => {
     setHasUserInteracted(true);
-    const savedAudioPref = localStorage.getItem('audioPlaying');
+    const savedAudioPref = sessionStorage.getItem('audioPlaying');
     if (savedAudioPref === null || JSON.parse(savedAudioPref)) {
       setIsAudioPlaying(true);
-      localStorage.setItem('audioPlaying', 'true');
     }
   };
 
