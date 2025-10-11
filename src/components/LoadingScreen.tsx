@@ -13,25 +13,23 @@ interface LoadingScreenProps {
   };
 }
 
-// A sharp, geometric icon to replace the star emoji
-const SharpIcon = () => (
+// Minimalist, sharp "SK" monogram icon.
+const MonogramIcon = ({ isPulsing = false }: { isPulsing?: boolean }) => (
   <motion.svg
     width="64"
     height="64"
-    viewBox="0 0 24 24"
+    viewBox="0 0 100 100"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    initial={{ scale: 0.8, opacity: 0 }}
-    animate={{ scale: 1, opacity: 1 }}
-    transition={{ delay: 0.1, duration: 0.4 }}
+    animate={isPulsing ? { scale: [1, 1.05, 1], opacity: [0.7, 1, 0.7] } : {}}
+    transition={isPulsing ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : {}}
   >
-    <path
-      d="M12 2L14.09 8.26L20 9.27L15.55 13.97L16.64 20.02L12 17.27L7.36 20.02L8.45 13.97L4 9.27L9.91 8.26L12 2Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinejoin="round"
-      className="text-accent"
-    />
+    {/* S Path */}
+    <path d="M75 25C75 16.7157 68.2843 10 60 10H40C31.7157 10 25 16.7157 25 25V40C25 48.2843 31.7157 55 40 55H60C68.2843 55 75 61.7157 75 70V85" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
+    {/* K Path */}
+    <path d="M25 85L25 10" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
+    <path d="M75 10L40 42.5" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
+    <path d="M40 42.5L75 85" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/>
   </motion.svg>
 );
 
@@ -49,10 +47,8 @@ export function LoadingScreen({ isVisible, onComplete, onEnter, componentsLoaded
 
   useEffect(() => {
     if (!isVisible) return;
-    const allLoaded = loadingItems.every(item => item.loaded);
-    if (allLoaded) {
-      // A brief delay to allow the user to see 100% before switching
-      setTimeout(() => setIsReady(true), 500);
+    if (loadingItems.every(item => item.loaded)) {
+      setTimeout(() => setIsReady(true), 500); // Brief delay to show 100%
     }
   }, [isVisible, componentsLoaded]);
 
@@ -62,77 +58,44 @@ export function LoadingScreen({ isVisible, onComplete, onEnter, componentsLoaded
       onComplete();
     }
   };
-
+  
+  // Setup keyboard/mouse listeners for entering the site
   useEffect(() => {
     if (!isReady) return;
-    const handleClick = () => handleEnter();
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') handleEnter();
-    };
-    window.addEventListener('click', handleClick);
-    window.addEventListener('keypress', handleKeyPress);
+    const enter = () => handleEnter();
+    const keyPress = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') enter();
+    }
+    window.addEventListener('click', enter);
+    window.addEventListener('keydown', keyPress);
     return () => {
-      window.removeEventListener('click', handleClick);
-      window.removeEventListener('keypress', handleKeyPress);
+      window.removeEventListener('click', enter);
+      window.removeEventListener('keydown', keyPress);
     };
-  }, [isReady, onEnter, onComplete]);
+  }, [isReady]);
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          exit={{ opacity: 0, transition: { duration: 0.5, delay: 0.3 } }}
           className="fixed inset-0 z-[100] bg-background flex items-center justify-center grid-overlay"
         >
           <AnimatePresence mode="wait">
             {!isReady ? (
+              // --- LOADING STATE ---
               <motion.div
                 key="loading"
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.3 }}
-                className="text-center max-w-sm mx-auto px-6 w-full"
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.4 }}
+                className="text-center max-w-sm mx-auto px-6 w-full flex flex-col items-center"
               >
-                {/* New Loading Animation */}
-                <div className="w-16 h-16 mx-auto mb-10">
-                  <motion.svg viewBox="0 0 100 100" fill="none">
-                    <motion.path
-                      d="M50 2.5V50H97.5"
-                      stroke="var(--accent)"
-                      strokeWidth="4"
-                      initial={{ pathLength: 0, opacity: 0.5 }}
-                      animate={{ pathLength: 1, opacity: 1 }}
-                      transition={{ duration: 0.7, ease: "circOut" }}
-                    />
-                    <motion.path
-                      d="M97.5 50H50V97.5"
-                      stroke="var(--accent-secondary)"
-                      strokeWidth="4"
-                      initial={{ pathLength: 0, opacity: 0.5 }}
-                      animate={{ pathLength: 1, opacity: 1 }}
-                      transition={{ duration: 0.7, delay: 0.2, ease: "circOut" }}
-                    />
-                     <motion.path
-                      d="M50 97.5H2.5V50"
-                      stroke="var(--accent-tertiary)"
-                      strokeWidth="4"
-                      initial={{ pathLength: 0, opacity: 0.5 }}
-                      animate={{ pathLength: 1, opacity: 1 }}
-                      transition={{ duration: 0.7, delay: 0.4, ease: "circOut" }}
-                    />
-                     <motion.path
-                      d="M2.5 50H50V2.5"
-                      stroke="var(--accent)"
-                      strokeWidth="4"
-                      initial={{ pathLength: 0, opacity: 0.5 }}
-                      animate={{ pathLength: 1, opacity: 1 }}
-                      transition={{ duration: 0.7, delay: 0.6, ease: "circOut" }}
-                    />
-                  </motion.svg>
+                <div className="w-16 h-16 mx-auto mb-10 text-foreground">
+                  <MonogramIcon />
                 </div>
 
-                <div className="w-full bg-muted/30 rounded-full h-1.5 overflow-hidden mb-4">
+                <div className="w-full bg-border/20 rounded-full h-1.5 overflow-hidden">
                   <motion.div
                     initial={{ width: '0%' }}
                     animate={{ width: `${progress}%` }}
@@ -141,33 +104,25 @@ export function LoadingScreen({ isVisible, onComplete, onEnter, componentsLoaded
                   />
                 </div>
 
-                <div className="space-y-3 mt-6">
+                <div className="w-full mt-4">
                   {loadingItems.map((item, index) => (
                     <motion.div
                       key={item.key}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ delay: index * 0.15 }}
-                      className="flex items-center justify-between text-xs"
+                      transition={{ delay: 0.2 + index * 0.1 }}
+                      className="flex items-center justify-between text-xs py-1"
                     >
                       <span className="text-muted-foreground font-mono">{item.label}</span>
-                      <AnimatePresence mode="wait">
-                        {item.loaded ? (
+                      <AnimatePresence>
+                        {item.loaded && (
                           <motion.div
-                            key="loaded"
+                            key="loaded-check"
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="flex items-center space-x-1 text-accent"
                           >
-                            <Check className="h-3.5 w-3.5" />
+                            <Check className="h-3.5 w-3.5 text-accent" />
                           </motion.div>
-                        ) : (
-                          <motion.div
-                            key="loading-dot"
-                            animate={{ opacity: [0.3, 1, 0.3] }}
-                            transition={{ duration: 1.5, repeat: Infinity }}
-                            className="h-2 w-2 bg-muted-foreground/50 rounded-full"
-                          />
                         )}
                       </AnimatePresence>
                     </motion.div>
@@ -175,18 +130,19 @@ export function LoadingScreen({ isVisible, onComplete, onEnter, componentsLoaded
                 </div>
               </motion.div>
             ) : (
+              // --- READY TO ENTER STATE ---
               <motion.div
                 key="ready"
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
                 className="text-center max-w-md mx-auto px-6 cursor-pointer"
                 onClick={handleEnter}
               >
-                <SharpIcon />
-                <h2
-                  className="mt-4 text-2xl text-foreground font-heading"
-                >
+                <div className="w-20 h-20 mx-auto text-foreground">
+                  <MonogramIcon isPulsing={true} />
+                </div>
+                <h2 className="mt-6 text-2xl text-foreground font-display">
                   Tap anywhere to enter
                 </h2>
               </motion.div>
