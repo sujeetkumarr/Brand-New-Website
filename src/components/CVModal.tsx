@@ -3,7 +3,6 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { siteContent } from '../data/content';
 
 interface CVModalProps {
   isOpen: boolean;
@@ -17,29 +16,30 @@ export function CVModal({ isOpen, onClose }: CVModalProps) {
       description: 'Optimized for opportunities in India, includes local education details and cultural context.',
       format: 'PDF',
       size: '2.3 MB',
-      updated: 'January 2025',
-      href: siteContent.assets.cv_india,
+      updated: '11th Oct. 2025',
+      href: 'https://drive.google.com/file/d/1U6GtkpCRIUb2kVrGFS8kveLz-cFyHSPG/view?usp=sharing',
       recommended: 'India, South Asia',
       icon: '🇮🇳'
     },
     {
-      title: 'European Market CV',
+      title: 'Dutch Market Creative CV',
       description: 'Formatted for Dutch/European opportunities, includes visa status and exchange details.',
       format: 'PDF',
       size: '2.1 MB',
-      updated: 'Coming Soon',
-      href: siteContent.assets.cv_dutch,
+      updated: '11th Oct. 2025',
+      href: 'https://drive.google.com/file/d/1VayOT7sLN5nK9wPAdtE3A2ZIeocB6l_M/view?usp=sharing',
       recommended: 'Netherlands, Europe',
       icon: '🇳🇱',
-      disabled: true
+      disabled: false
     },
     {
-      title: 'Digital Portfolio',
+      title: 'Creative Portfolio',
       description: 'Comprehensive work samples, case studies, and project documentation.',
       format: 'PDF',
       size: '8.7 MB',
-      updated: 'December 2024',
-      href: siteContent.assets.portfolio_pdf,
+      updated: '11th Oct. 2025',
+      href: 'https://drive.google.com/file/d/1jPdXTSY_83FFLMydlHUQb8xxP81AKsZg/view?usp=sharing',
+      preview: 'https://www.canva.com/design/DAG0KkNHpJg/sgO4RYjZuxYLfSLu2yJ8iw/view?utm_content=DAG0KkNHpJg&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h101a363ec4',
       recommended: 'Creative roles, consulting',
       icon: '📁'
     }
@@ -49,9 +49,8 @@ export function CVModal({ isOpen, onClose }: CVModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5 text-[#00245D] flex-shrink-0" />
-            <span>Download CV & Portfolio</span>
+          <DialogTitle className="text-left">
+            Download CV & Portfolio
           </DialogTitle>
         </DialogHeader>
 
@@ -139,7 +138,7 @@ export function CVModal({ isOpen, onClose }: CVModalProps) {
                       </Badge>
                     </div>
                     
-                    {!option.disabled && (
+                    {option.preview && !option.disabled && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -147,7 +146,7 @@ export function CVModal({ isOpen, onClose }: CVModalProps) {
                         className="text-xs text-muted-foreground hover:text-[#00245D] p-0"
                       >
                         <a
-                          href={option.href}
+                          href={option.preview}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1"
@@ -161,54 +160,6 @@ export function CVModal({ isOpen, onClose }: CVModalProps) {
                 </CardContent>
               </Card>
             ))}
-          </div>
-
-          {/* Additional Resources */}
-          <div className="border-t border-border pt-6">
-            <h4 className="font-medium text-foreground mb-3">Additional Resources</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                asChild
-                className="justify-start h-auto p-3 text-left"
-              >
-                <a
-                  href={siteContent.assets.lors_pdf}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start space-x-3"
-                >
-                  <FileText className="h-4 w-4 mt-0.5 text-[#00245D]" />
-                  <div>
-                    <div className="font-medium text-sm">Letters of Recommendation</div>
-                    <div className="text-xs text-muted-foreground">
-                      Academic and professional references
-                    </div>
-                  </div>
-                </a>
-              </Button>
-
-              <Button
-                variant="outline"
-                asChild
-                className="justify-start h-auto p-3 text-left"
-              >
-                <a
-                  href={siteContent.assets.thesis_pdf}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start space-x-3"
-                >
-                  <FileText className="h-4 w-4 mt-0.5 text-[#00245D]" />
-                  <div>
-                    <div className="font-medium text-sm">Undergraduate Thesis</div>
-                    <div className="text-xs text-muted-foreground">
-                      Meme Marketing in Gen Z India
-                    </div>
-                  </div>
-                </a>
-              </Button>
-            </div>
           </div>
 
           <div className="bg-muted/50 rounded-lg p-4">
