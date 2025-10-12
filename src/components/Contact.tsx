@@ -61,8 +61,243 @@ export function Contact({ onShowCVModal }: ContactProps) {
   return (
     <section id="contact" className="py-24 bg-muted/20">
       <div className="container mx-auto px-6">
-        {/* ... (rest of the component remains the same) ... */}
-        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-3xl md:text-4xl font-heading text-foreground mb-4">
+            Ping Me
+          </h2>
+          <p className="text-base text-foreground max-w-2xl mx-auto leading-relaxed">
+            I'm always up for a good conversation — whether it's a brand challenge, a research idea, or a role that sounds like a match.
+          </p>
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto mt-2">
+            Let's connect and build something meaningful, measurable, and maybe even a little magical.
+          </p>
+        </motion.div>
+
+        <div className="max-w-7xl mx-auto space-y-12">
+          {/* Contact Methods Grid */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h3 className="text-xl font-ui text-foreground mb-6">
+              Get in Touch
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {contactMethods.map((method, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Button
+                    variant="ghost"
+                    asChild
+                    className="w-full h-auto p-4 hover:bg-[#00C6FF]/10 hover:border-[#00C6FF]/30 border border-transparent transition-all text-left justify-start"
+                  >
+                    <a
+                      href={method.href}
+                      target={method.label === 'Email' ? undefined : '_blank'}
+                      rel={method.label === 'Email' ? undefined : 'noopener noreferrer'}
+                      className="flex flex-col items-start space-y-2 w-full"
+                      title={`Connect via ${method.label}`}
+                    >
+                      <method.icon className="h-5 w-5 text-[#00C6FF]" />
+                      <div>
+                        <div className="font-medium text-foreground text-sm">
+                          {method.label}
+                        </div>
+                        <div className="text-xs text-muted-foreground line-clamp-1">
+                          {method.value}
+                        </div>
+                      </div>
+                    </a>
+                  </Button>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Full-Width Availability & Downloadables Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="grid md:grid-cols-2 gap-6"
+          >
+            {/* Availability */}
+            <Card className="border-border/50">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-[#00C6FF] flex-shrink-0" />
+                  <span>Availability</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-foreground leading-relaxed mb-2">
+                  Currently available for remote projects and full-time roles in India.
+                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  From August 2025, open to Europe (Orientation Year Visa) and global collaborations.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Downloadables - With Modal Button */}
+            <Card className="border-border/50 bg-gradient-to-br from-[#00C6FF]/5 to-transparent">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Download className="h-5 w-5 text-[#00C6FF] flex-shrink-0" />
+                    <span>Download CV</span>
+                  </div>
+                  <Badge className="bg-[#00C6FF]/20 text-[#00C6FF] border-0">
+                    Featured
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Access my CV, portfolio, and supporting documents tailored for different markets.
+                </p>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => setShowDownloadablesModal(true)}
+                    className="flex-1 bg-[#00C6FF] hover:bg-[#00C6FF]/90 text-black"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    View All Documents
+                  </Button>
+                  <Button
+                    variant="outline"
+                    asChild
+                    className="border-[#00C6FF]/30 text-[#00C6FF] hover:bg-[#00C6FF]/10"
+                  >
+                    <a
+                      href="https://drive.google.com/file/d/1U6GtkpCRIUb2kVrGFS8kveLz-cFyHSPG/view?usp=sharing"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Direct download link to Indian CV"
+                    >
+                      <Download className="h-4 w-4" />
+                    </a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Contact Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Send a Message</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Fill out the form below and it'll open in your email client — just hit send!
+                </p>
+              </CardHeader>
+              
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Name *</Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        autoComplete="name"
+                        placeholder="Your full name"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        placeholder="your.email@company.com"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="reason">What brings you here? *</Label>
+                    <Select
+                      value={formData.reason}
+                      onValueChange={(value) => handleInputChange('reason', value)}
+                      name="reason"
+                      required
+                    >
+                      <SelectTrigger id="reason">
+                        <SelectValue placeholder="Select a reason" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {siteContent.contact.reasons.map((reason, index) => (
+                          <SelectItem key={index} value={reason}>
+                            {reason}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Message *</Label>
+                    <Textarea
+                      id="message"
+                      name="message"
+                      placeholder="Tell me about your project, role, or how I can help..."
+                      value={formData.message}
+                      onChange={(e) => handleInputChange('message', e.target.value)}
+                      rows={6}
+                      required
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#00C6FF] hover:bg-[#00C6FF]/90 text-black"
+                    title="Open message in email client"
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    Open in Email Client
+                  </Button>
+
+                  <p className="text-xs text-muted-foreground text-center">
+                    This will open your default email app with the message pre-filled. 
+                    Just review and hit send!
+                  </p>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Downloadables Modal */}
         <Dialog open={showDownloadablesModal} onOpenChange={setShowDownloadablesModal}>
           <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
@@ -118,6 +353,7 @@ export function Contact({ onShowCVModal }: ContactProps) {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center justify-center space-x-2"
+                              title={`Preview ${item.label}`}
                             >
                               <ExternalLink className="h-3 w-3" />
                               <span>Preview</span>
@@ -135,6 +371,7 @@ export function Contact({ onShowCVModal }: ContactProps) {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center justify-center space-x-2"
+                            title={`Download ${item.label}`}
                           >
                             <Download className="h-3 w-3" />
                             <span>Download</span>
@@ -152,6 +389,7 @@ export function Contact({ onShowCVModal }: ContactProps) {
                   <button
                     onClick={() => setShowDownloadablesModal(false)}
                     className="text-[#00C6FF] hover:underline"
+                    title="Contact to request specific format"
                   >
                     Get in touch
                   </button>
