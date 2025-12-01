@@ -3,7 +3,7 @@ import { db } from './firebase'; // <--- FIXED: uses ./ instead of ../
 import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 
-const SECRET_PIN = "2025"; 
+const SECRET_PIN = "7774"; 
 
 export function SecretDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
