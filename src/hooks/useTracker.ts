@@ -4,7 +4,8 @@ import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/fi
 
 const ADMIN_KEY = 'portfolio_admin_user';
 
-export const useTracker = () => {
+// Accepts a parameter to control if it should log the page visit automatically
+export const useTracker = (trackOnMount = false) => {
   const visitDocId = useRef<string | null>(null);
   const hasLogged = useRef(false);
   const heartbeatInterval = useRef<any>(null);
@@ -37,8 +38,8 @@ export const useTracker = () => {
         eventType,
         detail,
         location: locationData,
-        timestamp: serverTimestamp(), // Session Start
-        lastPing: serverTimestamp(),  // Heartbeat
+        timestamp: serverTimestamp(),
+        lastPing: serverTimestamp(),
         userAgent: navigator.userAgent,
         screenSize: `${window.innerWidth}x${window.innerHeight}`,
       });
@@ -55,7 +56,7 @@ export const useTracker = () => {
             lastPing: serverTimestamp() 
           }).catch(e => console.log("Heartbeat failed", e));
         }
-      }, 15000); // 15 seconds
+      }, 15000); 
 
     } catch (e) {
       console.error("Error tracking:", e);
@@ -63,16 +64,16 @@ export const useTracker = () => {
   };
 
   useEffect(() => {
-    if (!hasLogged.current) {
+    // ONLY track if explicitly told to (trackOnMount is true)
+    if (trackOnMount && !hasLogged.current) {
       trackEvent("Page Visit", window.location.pathname);
       hasLogged.current = true;
     }
 
-    // Cleanup when component unmounts
     return () => {
       if (heartbeatInterval.current) clearInterval(heartbeatInterval.current);
     };
-  }, []);
+  }, [trackOnMount]);
 
   return { trackEvent };
 };
