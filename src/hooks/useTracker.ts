@@ -2,28 +2,25 @@ import { useEffect, useRef } from 'react';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/firestore'; 
 
-// Key to identify you as the admin in local storage
 const ADMIN_KEY = 'portfolio_admin_user';
 
 export const useTracker = () => {
   const visitDocId = useRef<string | null>(null);
   const hasLogged = useRef(false);
+  const heartbeatInterval = useRef<any>(null);
 
-  // 1. Helper to check if current user is Admin
   const isAdmin = () => {
     return typeof window !== 'undefined' && localStorage.getItem(ADMIN_KEY) === 'true';
   };
 
-  // 2. Main Tracking Function
   const trackEvent = async (eventType: string, detail: string) => {
-    // STOP if it's you (The Admin)
     if (isAdmin()) {
       console.log("Admin visit ignored.");
       return;
     }
 
     try {
-      // Fetch location data (City, Country) from IP
+      // 1. Get Location
       let locationData = "Unknown";
       try {
         const response = await fetch('https://ipapi.co/json/');
@@ -35,46 +32,47 @@ export const useTracker = () => {
         console.warn("Could not fetch location");
       }
 
-      // Send to Firebase
+      // 2. Create the Session Document
       const docRef = await addDoc(collection(db, "visitors"), {
         eventType,
         detail,
         location: locationData,
-        timestamp: serverTimestamp(),
+        timestamp: serverTimestamp(), // Session Start
+        lastPing: serverTimestamp(),  // Heartbeat
         userAgent: navigator.userAgent,
         screenSize: `${window.innerWidth}x${window.innerHeight}`,
-        duration: "Active" // Initial state
       });
       
-      // Save ID to update duration later
       visitDocId.current = docRef.id;
+
+      // 3. Start the Heartbeat (Ping every 15 seconds)
+      if (heartbeatInterval.current) clearInterval(heartbeatInterval.current);
+      
+      heartbeatInterval.current = setInterval(() => {
+        if (visitDocId.current) {
+          const sessionRef = doc(db, "visitors", visitDocId.current);
+          updateDoc(sessionRef, { 
+            lastPing: serverTimestamp() 
+          }).catch(e => console.log("Heartbeat failed", e));
+        }
+      }, 15000); // 15 seconds
 
     } catch (e) {
       console.error("Error tracking:", e);
     }
   };
 
-  // 3. Auto-track Page Visit & Duration
   useEffect(() => {
     if (!hasLogged.current) {
       trackEvent("Page Visit", window.location.pathname);
       hasLogged.current = true;
     }
 
-    // Cleanup: Try to mark session end when user leaves
+    // Cleanup when component unmounts
     return () => {
-      if (visitDocId.current) {
-        // We can't easily calculate exact seconds on close without a beacon, 
-        // but we can mark the timestamp of exit to calculate it in dashboard later.
-        const exitRef = doc(db, "visitors", visitDocId.current);
-        updateDoc(exitRef, { 
-          exitTime: serverTimestamp(),
-          duration: "Ended"
-        }).catch(e => console.log("Exit log failed", e));
-      }
+      if (heartbeatInterval.current) clearInterval(heartbeatInterval.current);
     };
   }, []);
 
-  // 4. Return function to manually track clicks (Downloads, etc)
   return { trackEvent };
 };
