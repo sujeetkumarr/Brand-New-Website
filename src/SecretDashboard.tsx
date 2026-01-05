@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { db } from './firebase'; // <--- FIXED: uses ./ instead of ../
+import { db } from './firebase'; 
 import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 
@@ -36,15 +36,30 @@ export function SecretDashboard() {
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => {
         const d = doc.data();
-        // Calculate duration if exitTime exists
-        let durationDisplay = d.duration || "Active";
-        if (d.timestamp && d.exitTime) {
+        
+        // --- DURATION LOGIC ---
+        let durationDisplay = "0s";
+        let isOnline = false;
+
+        // Check if we have both start time and last ping
+        if (d.timestamp && d.lastPing) {
           const start = d.timestamp.seconds;
-          const end = d.exitTime.seconds;
-          const diff = end - start;
-          durationDisplay = diff < 60 ? `${diff}s` : `${Math.floor(diff/60)}m ${diff%60}s`;
+          const end = d.lastPing.seconds;
+          const now = Math.floor(Date.now() / 1000);
+          
+          // If last ping was less than 60 seconds ago, they are Online
+          if (now - end < 60) {
+            isOnline = true;
+            durationDisplay = "🟢 Online";
+          } else {
+            // Otherwise, calculate total time
+            const diff = end - start;
+            if (diff < 60) durationDisplay = `${diff}s`;
+            else durationDisplay = `${Math.floor(diff/60)}m ${diff%60}s`;
+          }
         }
-        return { id: doc.id, ...d, durationDisplay };
+        
+        return { id: doc.id, ...d, durationDisplay, isOnline };
       });
       setLogs(data);
     } catch (error) {
@@ -87,7 +102,7 @@ export function SecretDashboard() {
         <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
           <div>
             <h1 className="text-xl md:text-3xl font-bold text-emerald-400">Traffic Controller</h1>
-            <p className="text-gray-500 mt-1">Admin Mode: Active (Tracking Disabled)</p>
+            <p className="text-gray-500 mt-1">Admin Mode: Active</p>
           </div>
           <button onClick={fetchLogs} className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors">
             REFRESH SIGNAL
@@ -101,9 +116,9 @@ export function SecretDashboard() {
             <p className="text-3xl font-bold text-white">{logs.length}</p>
           </div>
           <div className="bg-gray-900/50 p-4 rounded border border-gray-800">
-            <h3 className="text-gray-500 uppercase tracking-wider mb-2">Downloads</h3>
-            <p className="text-3xl font-bold text-blue-400">
-              {logs.filter(l => l.eventType?.includes("Download")).length}
+            <h3 className="text-gray-500 uppercase tracking-wider mb-2">Active Now</h3>
+            <p className="text-3xl font-bold text-emerald-400">
+              {logs.filter(l => l.isOnline).length}
             </p>
           </div>
         </div>
@@ -129,7 +144,7 @@ export function SecretDashboard() {
                     key={log.id} 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className={`hover:bg-white/5 transition-colors ${log.eventType.includes('Download') ? 'bg-blue-900/10' : ''}`}
+                    className={`hover:bg-white/5 transition-colors ${log.isOnline ? 'bg-emerald-900/10' : ''}`}
                   >
                     <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
                       {formatTime(log.timestamp)}
@@ -145,7 +160,7 @@ export function SecretDashboard() {
                       </span>
                       <div className="text-xs text-gray-500 mt-1">{log.detail}</div>
                     </td>
-                    <td className="px-6 py-4 text-gray-400">
+                    <td className={`px-6 py-4 ${log.isOnline ? "text-emerald-400 font-bold animate-pulse" : "text-gray-400"}`}>
                       {log.durationDisplay}
                     </td>
                     <td className="px-6 py-4 text-gray-600 text-xs hidden md:table-cell max-w-[150px] truncate">
