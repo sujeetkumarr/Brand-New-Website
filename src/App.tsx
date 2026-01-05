@@ -17,11 +17,11 @@ import { LoadingScreen } from './components/LoadingScreen';
 
 export default function App() {
   // 1. ACTIVATE VISITOR TRACKING
-  useTracker();
+  // Pass 'true' here so ONLY the main app logs the "Page Visit"
+  useTracker(true);
 
   // 2. SECRET DASHBOARD CHECK
-  // If the user visits this specific URL, we render the dashboard immediately
-  // and skip the rest of the portfolio loading.
+  // Updated to new simpler URL: /adminaccess
   const isAdminRoute = typeof window !== 'undefined' && window.location.pathname === '/adminaccess';
 
   const [isDark, setIsDark] = useState(true);
