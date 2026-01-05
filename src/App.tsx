@@ -22,7 +22,7 @@ export default function App() {
   // 2. SECRET DASHBOARD CHECK
   // If the user visits this specific URL, we render the dashboard immediately
   // and skip the rest of the portfolio loading.
-  const isAdminRoute = typeof window !== 'undefined' && window.location.pathname === '/admin-control-room-x99';
+  const isAdminRoute = typeof window !== 'undefined' && window.location.pathname === '/adminaccess';
 
   const [isDark, setIsDark] = useState(true);
   const [showCVModal, setShowCVModal] = useState(false);
