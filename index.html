@@ -129,15 +129,16 @@
       ]
     }
     </script>
-    
-    <!-- 7. NOSCRIPT FALLBACK FOR SEO -->
-    <noscript>
-      <h1>Sujeetkumar Kadam - Brand Strategist & Researcher</h1>
-      <p>Global Marketing Consultant specializing in AI-integrated marketing and ROI-driven growth (520% ROI). Researcher at Reach Alliance focusing on resilience in conflict zones.</p>
-    </noscript>
-
   </head>
   <body>
+    <!-- 7. NOSCRIPT FALLBACK FOR SEO (Moved to Body for Vite compatibility) -->
+    <noscript>
+      <div style="padding: 20px; font-family: sans-serif;">
+        <h1>Sujeetkumar Kadam - Brand Strategist & Researcher</h1>
+        <p>Global Marketing Consultant specializing in AI-integrated marketing and ROI-driven growth (520% ROI). Researcher at Reach Alliance focusing on resilience in conflict zones.</p>
+      </div>
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
