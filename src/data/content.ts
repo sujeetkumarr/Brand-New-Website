@@ -137,6 +137,16 @@ export const siteContent = {
     "title": "My Gigs",
     "roles": [
       {
+        "role": "Founders Office Associate - Creative and Growth",
+        "company": "The Solved Skin",
+        "location": "Remote",
+        "dates": "Jan 2026 – Present",
+        "type": "Full-time",
+        "pills": ["🚀 NPD Strategy", "🧠 Behavioral CX", "📈 Amazon PDP Growth"],
+        "mainFrame": "Driving the overarching creative strategy and consumer-facing brand presence, bridging New Product Development and marketing to translate technical skincare innovations into high-converting messaging.",
+        "expanded": "• Creative Strategy & NPD: Bridging New Product Development and marketing to translate technical skincare innovations into high-converting, omnichannel consumer messaging.\n\n• Behavioral Design & CX: Structuring information hierarchy and copy for physical packaging (e.g., Liquid Pimple Patch) to reduce cognitive load and guide intuitive user application.\n\n• Digital Growth: Executing 'pattern-interrupt' visual and written strategies for Amazon PDPs to maximize scroll-stopping engagement and conversion.\n\n• Creative Direction: Managing external design agencies to ensure visual production strictly aligns with a disruptive, tech-forward brand aesthetic."
+      },
+      {
         "role": "Marketing & Client Solutions Consultant",
         "company": "Tetramind Asia",
         "location": "Hyderabad, India",
