@@ -9,7 +9,7 @@ import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { siteContent } from '../data/content';
 
 interface ContactProps {
@@ -29,7 +29,7 @@ export function Contact({ onShowCVModal }: ContactProps) {
     e.preventDefault();
     
     const subject = `Portfolio Contact: ${formData.reason}`;
-    const body = `Name: ${formData.name}%0D%0AEmail: ${formData.email}%0D%0AReason: ${formData.reason}%0D%0A%0D%0AMessage:%0D%0A${encodeURIComponent(formData.message)}`;
+    const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nReason: ${formData.reason}\n\nMessage:\n${formData.message}`);
     
     window.location.href = `mailto:sujeetkumarkadam@gmail.com?subject=${encodeURIComponent(subject)}&body=${body}`;
     

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { db } from './firebase'; 
 import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 const SECRET_PIN = "7774"; 
 

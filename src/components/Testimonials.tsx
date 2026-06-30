@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
@@ -28,10 +28,10 @@ export function Testimonials() {
     }
   };
 
-  useState(() => {
+  useEffect(() => {
     startAutoPlay();
     return () => stopAutoPlay();
-  });
+  }, []);
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);

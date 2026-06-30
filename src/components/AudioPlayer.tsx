@@ -66,8 +66,10 @@ export function AudioPlayer({
     // Bind events
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
-    audio.addEventListener('play', () => onPlayStateChange(true));
-    audio.addEventListener('pause', () => onPlayStateChange(false));
+    const handlePlay = () => onPlayStateChange(true);
+    const handlePause = () => onPlayStateChange(false);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
 
     // Initial track load
     loadTrack(false);
@@ -76,8 +78,8 @@ export function AudioPlayer({
     return () => {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
-      audio.removeEventListener('play', () => onPlayStateChange(true));
-      audio.removeEventListener('pause', () => onPlayStateChange(false));
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
       audio.pause();
     };
   }, []);
