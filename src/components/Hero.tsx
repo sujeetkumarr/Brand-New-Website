@@ -45,7 +45,7 @@ export function Hero({ onScrollToContact, onShowCVModal, onHeroReady }: HeroProp
       <div className="absolute inset-0 w-full h-full z-0" style={{ pointerEvents: 'auto' }}>
         <LiquidEther
           colors={etherColors}
-          mouseForce={30}
+          mouseForce={45}
           cursorSize={80}
           isViscous={false}
           viscous={15}

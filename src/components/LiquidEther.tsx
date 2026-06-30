@@ -412,7 +412,7 @@ export default function LiquidEther({
 		varying vec2 uv;
 		void main(){
 		vec2 ratio = max(fboSize.x, fboSize.y) / fboSize;
-		float dissipation = 0.985;
+		float dissipation = 0.998;
 		if(isBFECC == false){
 				vec2 vel = texture2D(velocity, uv).xy;
 				vec2 uv2 = uv - vel * dt * ratio;
